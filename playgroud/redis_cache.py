@@ -9,12 +9,20 @@
 
 import redis
 import requests
+import json
 from datetime import datetime
 
 base_url = 'http://tesla.iem.pw.edu.pl:9080/v2/monitor'
+store = redis.Redis()
 
 
 def add_data(id: int) -> None:
+    """Fetch and save to redis current data about one person
+
+    Arguments:
+        id {int} -- Endpoint person id from 1 to 6
+    """
+
     url = f'{base_url}/{id}'
     r = requests.get(url)
 
@@ -24,7 +32,8 @@ def add_data(id: int) -> None:
     data = r.json()
     data["timestamp"] = datetime.timestamp(datetime.now())  # Add current time
 
-    print(data)
+    key = f'personData{id}'
+    store.lpush(key, json.dumps(data))
 
 
 if __name__ == '__main__':
