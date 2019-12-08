@@ -1,0 +1,13 @@
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# OSX Filesystem info
+.DS_Store
+
+# Config for VSCode
+.vscode
+
+# Python files
+__pycache__
+venv
