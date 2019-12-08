@@ -42,7 +42,7 @@ def add_singe_data(id: int) -> None:
     data["timestamp"] = datetime.timestamp(datetime.now())  # Add current time
 
     key = f'personData{id}'
-    store.lpush(key, json.dumps(data))
+    store.lpush(key, json.dumps(data, separators=(',', ':')))
 
 
 if __name__ == '__main__':
