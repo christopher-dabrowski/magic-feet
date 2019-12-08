@@ -11,12 +11,21 @@ import redis
 import requests
 import json
 from datetime import datetime
+import time
 
 base_url = 'http://tesla.iem.pw.edu.pl:9080/v2/monitor'
 store = redis.Redis()
 
 
-def add_data(id: int) -> None:
+def add_all_data() -> None:
+    """Fetch and save to redis data about every person
+    """
+
+    for i in range(1, 7):
+        add_singe_data(i)
+
+
+def add_singe_data(id: int) -> None:
     """Fetch and save to redis current data about one person
 
     Arguments:
@@ -37,5 +46,6 @@ def add_data(id: int) -> None:
 
 
 if __name__ == '__main__':
-    # endpoint_urls = [f'{base_url}/{i}' for i in range(1, 7)]
-    add_data(1)
+    while True:
+        add_all_data()
+        time.sleep(0.8)
