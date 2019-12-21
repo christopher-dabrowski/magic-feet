@@ -1,4 +1,5 @@
 # Program to store last 10 minutes of data from API to Redis
+# Currently data is **never deleted**
 #
 # Before running this script there needs to be Redis instance running.
 # Simplest way to achieve this is to run Docker image: docker run --rm -p 6379:6379 --name redis -it redis
@@ -27,6 +28,7 @@ def add_all_data() -> None:
 
 def add_singe_data(id: int) -> None:
     """Fetch and save to redis current data about one person
+    If API doesn't respond no data is saved
 
     Arguments:
         id {int} -- Endpoint person id from 1 to 6
@@ -48,4 +50,4 @@ def add_singe_data(id: int) -> None:
 if __name__ == '__main__':
     while True:
         add_all_data()
-        time.sleep(0.8)
+        time.sleep(0.8)  # Try to have one data point every second
