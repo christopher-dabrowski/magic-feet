@@ -84,7 +84,10 @@ def initial_cleanup() -> None:
 if __name__ == '__main__':
     initial_cleanup()
 
-    while True:
-        add_all_data()
-        clean_all_data()
-        time.sleep(0.8)  # Try to have one data point every second
+    try:
+        while True:
+            add_all_data()
+            clean_all_data()
+            time.sleep(0.8)  # Try to have one data point every second
+    except KeyboardInterrupt:
+        print('\nSavin API data stopped, bye bye')
