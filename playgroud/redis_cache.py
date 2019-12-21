@@ -1,12 +1,13 @@
 # Program to store last 10 minutes of data from API to Redis
 # Currently data is **never deleted**
 #
+# Data for every person is saved as Redis list under key personData{id}
+# Every list entry is **JSON serialized** server response
+#
 # Before running this script there needs to be Redis instance running.
 # Simplest way to achieve this is to run Docker image: docker run --rm -p 6379:6379 --name redis -it redis
 #
 # To add redis-py library to Anaconda run: conda install -c anaconda redis-py
-
-# Data of each person will be added to separate list
 
 import redis
 import requests
