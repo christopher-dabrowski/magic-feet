@@ -13,6 +13,7 @@ import requests
 import json
 from datetime import datetime
 import time
+import sys
 
 base_url = 'http://tesla.iem.pw.edu.pl:9080/v2/monitor'
 store = redis.Redis()
@@ -35,7 +36,14 @@ def add_singe_data(id: int) -> None:
     """
 
     url = f'{base_url}/{id}'
-    r = requests.get(url)
+
+    r = None
+    try:
+        r = requests.get(url, timeout=5)
+    except requests.ConnectionError:
+        print('Unable to fetch data from the server')
+        print('Make sure that VPN connection is enabled\n')
+        return
 
     if r.status_code != 200:  # Failed to get data
         return
