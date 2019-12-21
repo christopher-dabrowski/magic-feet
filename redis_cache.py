@@ -1,5 +1,4 @@
 # Program to store last 10 minutes of data from API to Redis
-# Currently data is **never deleted**
 #
 # Data for every person is saved as Redis list under key personData{id}
 # Every list entry is **JSON serialized** server response
@@ -12,12 +11,13 @@
 import redis
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import sys
 
 base_url = 'http://tesla.iem.pw.edu.pl:9080/v2/monitor'
 store = redis.Redis()
+data_expiration_time = timedelta(minutes=10)
 
 
 def add_all_data() -> None:
@@ -56,7 +56,35 @@ def add_singe_data(id: int) -> None:
     store.lpush(key, json.dumps(data, separators=(',', ':')))
 
 
+def clean_all_data() -> None:
+    """Remove oldest records in every list if it's time stamp is pass given time"""
+
+    for i in range(1, 7):
+        clean_singe_data(i)
+
+
+def clean_singe_data(id: int) -> None:
+    """Remove oldest records in list with given id if it's time stamp is pass given time"""
+    key = f'personData{id}'
+
+    # It could be inefficient. Maybe we should pop and push it back if it's ok
+    oldest_data = store.lrange(key, -1, -1)[0]
+    oldest_data = json.loads(oldest_data)
+
+    if datetime.fromtimestamp(oldest_data["timestamp"]) < datetime.now() - data_expiration_time:
+        store.rpop(key)
+
+
+def initial_cleanup() -> None:
+    """Delete all data from previous runs"""
+    keys = [f'personData{id}' for id in range(1, 7)]
+    store.delete(*keys)
+
+
 if __name__ == '__main__':
+    initial_cleanup()
+
     while True:
         add_all_data()
+        clean_all_data()
         time.sleep(0.8)  # Try to have one data point every second
