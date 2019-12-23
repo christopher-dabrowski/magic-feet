@@ -22,12 +22,13 @@ import plotly.graph_objects as go
 from plotly.colors import n_colors
 from dash.dependencies import Input, Output
 import pandas as pd
-import redis_cache
+import redis
 import json
 import datetime as dt
 import time
 import requests
 
+store = redis.Redis()
 
 df = pd.DataFrame(columns=('time', 'sensor_0', 'sensor_1', 'sensor_2', 'sensor_3', 'sensor_4', 'sensor_5'))
 current_id = 1
@@ -114,8 +115,10 @@ def render_tab(tab):
 
 @app.callback(Output('table', 'figure'), [Input('interval-component', 'n_intervals')])
 def update_table(n_intervals):
+    
+
     try:
-        item = redis_cache.store.lpop(f'personData{current_id}')
+        item = store.lpop(f'personData{current_id}')
         item = to_json(item)
         row = []
         row.append(dt.datetime.now())
