@@ -40,7 +40,7 @@ def to_json(data):
 
     return data
 
-def make_table():
+def make_table(df):
     table = go.Figure(data=[go.Table(
             header=dict(values=list(df.columns),
                         fill_color='paleturquoise',
@@ -115,24 +115,26 @@ def render_tab(tab):
 
 @app.callback(Output('table', 'figure'), [Input('interval-component', 'n_intervals')])
 def update_table(n_intervals):
-    
+    TABLE_SIZE = 20
+    key = f'personData{current_id}'
 
-    try:
-        item = store.lpop(f'personData{current_id}')
-        item = to_json(item)
-        row = []
-        row.append(dt.datetime.now())
-        for i in range(6):
-            row.append(item["trace"]["sensors"][i]["value"])
-        df.loc[-1] = row
-        df.index = df.index + 1
-        df.sort_index(inplace=True)
-        if len(df)>10:
-            df.drop(df.index[-1], inplace=True)
-        time.sleep(0.8)
-        return make_table()
-    except AttributeError:
-        return make_table()
+    rawList = store.lrange(key, 0, TABLE_SIZE)
+    data = [json.loads(d.decode()) for d in rawList]
+
+    values = {'time': [], 'sensor_0': [], 'sensor_1': [],
+              'sensor_2': [], 'sensor_3': [], 'sensor_4': [], 'sensor_5': []}
+
+    for value in data:
+        values['time'].append(dt.datetime.fromtimestamp(value['timestamp']))
+        sensors = value['trace']['sensors']
+
+        for s in sensors:
+            id = s['id']
+            key = f'sensor_{id}'
+            values[key].append(s['value'])
+
+    df = pd.DataFrame(values)
+    return make_table(df)
   
 
 if __name__ == '__main__':
