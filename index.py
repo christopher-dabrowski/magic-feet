@@ -101,7 +101,8 @@ def update_table(n_intervals):
               'sensor_2': [], 'sensor_3': [], 'sensor_4': [], 'sensor_5': []}
 
     for value in data:
-        values['time'].append(dt.datetime.fromtimestamp(value['timestamp']))
+        datetime = dt.datetime.fromtimestamp(value['timestamp'])
+        values['time'].append(datetime.strftime("%m/%d/%Y, %H:%M:%S"))
         sensors = value['trace']['sensors']
 
         for s in sensors:
