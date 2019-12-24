@@ -25,7 +25,7 @@ def make_table(df):
     )])
 
     return table
-    
+
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -78,10 +78,11 @@ def render_tab(tab):
     elif tab == 'tab-6':
         current_id = 6
 
-    data = requests.get(
-        f'http://tesla.iem.pw.edu.pl:9080/v2/monitor/{current_id}')
-    data = data.json()
-    cont = data['firstname'] + " " + data['lastname'], ", " + data['birthdate']
+    key = f'personData{current_id}'
+    data = json.loads(store.lrange(key, 0, 0)[0])
+
+    firstName, lastName, birthdate = data['firstname'], data['lastname'], data['birthdate']
+    cont = f'{firstName} {lastName} {birthdate}'
 
     return html.Div([
         html.H3(str(cont))
