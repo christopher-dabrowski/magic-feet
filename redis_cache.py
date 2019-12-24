@@ -67,9 +67,6 @@ def clean_singe_data(id: int) -> None:
     """Remove oldest records in list with given id if it's time stamp is pass given time"""
     key = f'personData{id}'
 
-    if (store.llen(key) <= 0): # Safeguard for some weird behavior
-        return
-
     # It could be inefficient. Maybe we should pop and push it back if it's ok
     oldest_data = store.lrange(key, -1, -1)[0]
     oldest_data = json.loads(oldest_data)
