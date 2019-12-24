@@ -60,23 +60,8 @@ app.layout = html.Div(children=[
               [Input('tabs', 'value')])
 def render_tab(tab):
 
-    if tab == 'tab-1':
-        current_id = 1
-
-    elif tab == 'tab-2':
-        current_id = 2
-
-    elif tab == 'tab-3':
-        current_id = 3
-
-    elif tab == 'tab-4':
-        current_id = 4
-
-    elif tab == 'tab-5':
-        current_id = 5
-
-    elif tab == 'tab-6':
-        current_id = 6
+    # Tab value is in format "tab-1"
+    current_id = int(tab[-1])
 
     key = f'personData{current_id}'
     data = json.loads(store.lrange(key, 0, 0)[0])
