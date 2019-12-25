@@ -50,7 +50,7 @@ def map_value_to_RGB_string(value: float) -> str:
 
 def make_table(values, cell_colors=None):
     table = go.Figure(data=[go.Table(
-        header=dict(values=list(values.keys()),
+        header=dict(values=[c.replace('_', ' ') for c in values.keys()],
                     fill_color='paleturquoise',
                     align='left'),
         cells=dict(values=[values.get(key)
