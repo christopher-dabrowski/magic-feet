@@ -13,7 +13,7 @@ import requests
 store = redis.Redis()
 
 current_id = 1
-if_changed = False
+if_changed = False  # FIXME: Unused variable
 
 
 def make_table(df):
