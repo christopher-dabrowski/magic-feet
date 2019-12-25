@@ -14,9 +14,12 @@ import json
 from datetime import datetime, timedelta
 import time
 import sys
+import os
+
+REDIS_HOST = os.getenv('REDIS_HOST') or 'localhost'
+store = redis.Redis(REDIS_HOST)
 
 base_url = 'http://tesla.iem.pw.edu.pl:9080/v2/monitor'
-store = redis.Redis()
 data_expiration_time = timedelta(minutes=10)
 
 
@@ -42,8 +45,8 @@ def add_singe_data(id: int) -> None:
     try:
         r = requests.get(url, timeout=5)
     except requests.ConnectionError:
-        print('Unable to fetch data from the server')
-        print('Make sure that VPN connection is enabled\n')
+        print('Unable to fetch data from the server', flush=True)
+        print('Make sure that VPN connection is enabled\n', flush=True)
         return
 
     if r.status_code != 200:  # Failed to get data
@@ -82,6 +85,7 @@ def initial_cleanup() -> None:
 
 
 if __name__ == '__main__':
+    print('Starting to cache API data for rough times', flush=True)
     initial_cleanup()
 
     try:
@@ -90,4 +94,4 @@ if __name__ == '__main__':
             clean_all_data()
             time.sleep(0.8)  # Try to have one data point every second
     except KeyboardInterrupt:
-        print('\nSavin API data stopped, bye bye')
+        print('\nSavin API data stopped, bye bye', flush=True)
