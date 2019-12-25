@@ -17,9 +17,13 @@ store = redis.Redis()
 
 
 def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
+    # FIXME: Move those functions to some other module
+    """Linear interpolation from sensor value to RGB color"""
+
     smallest, biggest = 0, 1023  # From doctor Zawadzki's documentation
     value_range = [smallest, biggest]
 
+    # Mapping from white to green
     red_range = [255, 85]
     green_range = [255, 255]
     blue_range = [255, 85]
@@ -32,11 +36,15 @@ def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
 
 
 def create_RGB_string(rgb: Tuple[float, float, float]) -> str:
+    """Create rgb string for Plotly"""
+
     value = ', '.join((str(c) for c in rgb))
     return f'rgb({value})'
 
 
 def map_value_to_RGB_string(value: float) -> str:
+    """Support function to join mapping value and converting to Ploty string"""
+
     return create_RGB_string(map_value_to_RGB(value))
 
 
