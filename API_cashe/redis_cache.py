@@ -23,6 +23,17 @@ base_url = 'http://tesla.iem.pw.edu.pl:9080/v2/monitor'
 data_expiration_time = timedelta(minutes=10)
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 def add_all_data() -> None:
     """Fetch and save to redis data about every person
     """
@@ -45,7 +56,8 @@ def add_singe_data(id: int) -> None:
     try:
         r = requests.get(url, timeout=5)
     except requests.ConnectionError:
-        print('Unable to fetch data from the server', flush=True)
+        print(
+            f'{bcolors.FAIL}Unable to fetch data from the server{bcolors.ENDC}', flush=True)
         print('Make sure that VPN connection is enabled\n', flush=True)
         return
 
