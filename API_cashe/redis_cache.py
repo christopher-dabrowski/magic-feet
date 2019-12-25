@@ -14,10 +14,24 @@ import json
 from datetime import datetime, timedelta
 import time
 import sys
+import os
+
+REDIS_HOST = os.getenv('REDIS_HOST') or 'localhost'
+store = redis.Redis(REDIS_HOST)
 
 base_url = 'http://tesla.iem.pw.edu.pl:9080/v2/monitor'
-store = redis.Redis()
 data_expiration_time = timedelta(minutes=10)
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 def add_all_data() -> None:
@@ -42,8 +56,9 @@ def add_singe_data(id: int) -> None:
     try:
         r = requests.get(url, timeout=5)
     except requests.ConnectionError:
-        print('Unable to fetch data from the server')
-        print('Make sure that VPN connection is enabled\n')
+        print(
+            f'{bcolors.FAIL}Unable to fetch data from the server{bcolors.ENDC}', flush=True)
+        print('Make sure that VPN connection is enabled\n', flush=True)
         return
 
     if r.status_code != 200:  # Failed to get data
@@ -67,9 +82,6 @@ def clean_singe_data(id: int) -> None:
     """Remove oldest records in list with given id if it's time stamp is pass given time"""
     key = f'personData{id}'
 
-    if (store.llen(key) <= 0): # Safeguard for some weird behavior
-        return
-
     # It could be inefficient. Maybe we should pop and push it back if it's ok
     oldest_data = store.lrange(key, -1, -1)[0]
     oldest_data = json.loads(oldest_data)
@@ -85,6 +97,7 @@ def initial_cleanup() -> None:
 
 
 if __name__ == '__main__':
+    print('Starting to cache API data for rough times', flush=True)
     initial_cleanup()
 
     try:
@@ -93,4 +106,4 @@ if __name__ == '__main__':
             clean_all_data()
             time.sleep(0.8)  # Try to have one data point every second
     except KeyboardInterrupt:
-        print('\nSavin API data stopped, bye bye')
+        print('\nSavin API data stopped, bye bye', flush=True)
