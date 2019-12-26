@@ -53,8 +53,8 @@ def make_table(values, cell_colors=None):
         header=dict(values=[c.replace('_', ' ') for c in values.keys()],
                     fill_color='paleturquoise',
                     align='left'),
-        cells=dict(values=[values.get(key)
-                           for key in values.keys()], fill=dict(color=cell_colors))
+        cells=dict(values=list(values.values()),
+                   fill=dict(color=cell_colors))
     )])
 
     return table
