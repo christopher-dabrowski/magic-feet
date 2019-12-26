@@ -1,16 +1,18 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 from plotly.colors import n_colors
-from dash.dependencies import Input, Output, State
-import pandas as pd
+
 import redis
 import json
 import datetime as dt
 import time
 import requests
 from typing import Tuple
+import pandas as pd
 import numpy as np
 
 store = redis.Redis()
@@ -65,8 +67,10 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-    html.H1(children='Hello Dash'),
+    # Store current person id
+    dcc.Store(id='current-id', storage_type='session'),
 
+    html.H1(children='Hello Dash'),
     html.Div(children='''
         Dash: A web application framework for Python.
     '''),
@@ -79,12 +83,9 @@ app.layout = html.Div(children=[
         dcc.Tab(label='Person five', value='5'),
         dcc.Tab(label='Person six', value='6'),
     ]),
-
     html.Div(id='tabs-content'),
 
     dcc.Graph(id='table'),
-
-    html.Div(id='current_id', style={'display': 'none'}),
 
     dcc.Interval(id='interval-component',
                  interval=1*1000,
@@ -92,34 +93,29 @@ app.layout = html.Div(children=[
 ])
 
 
-@app.callback([Output('current_id', 'children'),
+@app.callback([Output('current-id', 'data'),
                Output('tabs-content', 'children')
                ],
-              [Input('tabs', 'value')],
-              [State('current_id', 'children')])
-def render_tab(tab, current_id):
-
-    # Tab value is in format "tab-1"
-    print(tab, current_id)
-    new_id = tab
-
+              [Input('tabs', 'value')])
+def on_person_tab_change(new_id):
     key = f'personData{new_id}'
-    data = json.loads(store.lrange(key, 0, 0)[0])
+    preson = json.loads(store.lrange(key, 0, 0)[0])
 
-    firstName, lastName, birthdate = data['firstname'], data['lastname'], data['birthdate']
+    firstName, lastName, birthdate = preson['firstname'], preson['lastname'], preson['birthdate']
     cont = f'{firstName} {lastName} {birthdate}'
 
     return new_id, html.Div([
-        html.H3(str(cont))
+        html.H3(cont)
     ])
 
 
 @app.callback(Output('table', 'figure'),
-              [Input('interval-component', 'n_intervals')],
-              [State('current_id', 'children')])
+              [Input('interval-component', 'n_intervals'),
+               Input('current-id', 'data')],)
 def update_table(n_intervals, current_id):
-    if current_id == None:
-        current_id = 1
+    if current_id is None:
+        raise PreventUpdate
+
     TABLE_SIZE = 20
     key = f'personData{current_id}'
 
