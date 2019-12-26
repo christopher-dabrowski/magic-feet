@@ -3,25 +3,33 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
 from plotly.colors import n_colors
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import pandas as pd
 import redis
 import json
 import datetime as dt
 import time
 import requests
+
 store = redis.Redis()
 
-current_id = 1
-if_changed = False  # FIXME: Unused variable
+#def make_table(df):
+#    table = go.Figure(data=[go.Table(
+#        header=dict(values=list(df.columns),
+#                    fill_color='paleturquoise',
+#                    align='left'),
+#        cells=dict(values=[df[c] for c in df.columns])
+#    )])
+#
+#    return table
 
+def make_table(values):
 
-def make_table(df):
     table = go.Figure(data=[go.Table(
-        header=dict(values=list(df.columns),
+        header=dict(values=list(values.keys()),
                     fill_color='paleturquoise',
                     align='left'),
-        cells=dict(values=[df[c] for c in df.columns])
+        cells=dict(values=[values.get(key) for key in values.keys()])
     )])
 
     return table
@@ -38,44 +46,54 @@ app.layout = html.Div(children=[
         Dash: A web application framework for Python.
     '''),
 
-    dcc.Tabs(id="tabs", value='tab-1', children=[
-        dcc.Tab(label='Person one', value='tab-1'),
-        dcc.Tab(label='Person two', value='tab-2'),
-        dcc.Tab(label='Person three', value='tab-3'),
-        dcc.Tab(label='Person four', value='tab-4'),
-        dcc.Tab(label='Person five', value='tab-5'),
-        dcc.Tab(label='Person six', value='tab-6'),
+    dcc.Tabs(id="tabs", value='1', children=[
+        dcc.Tab(label='Person one', value='1'),
+        dcc.Tab(label='Person two', value='2'),
+        dcc.Tab(label='Person three', value='3'),
+        dcc.Tab(label='Person four', value='4'),
+        dcc.Tab(label='Person five', value='5'),
+        dcc.Tab(label='Person six', value='6'),
     ]),
 
     html.Div(id='tabs-content'),
 
     dcc.Graph(id='table'),
+    
+    html.Div(id='current_id', style={'display': 'none'}),
 
     dcc.Interval(id='interval-component',
                  interval=1*1000,
                  n_intervals=0)
 ])
 
-@app.callback(Output('tabs-content', 'children'),
-              [Input('tabs', 'value')])
-def render_tab(tab):
+@app.callback([Output('current_id', 'children'),
+              Output('tabs-content', 'children')
+              ],
+              [Input('tabs', 'value')],
+              [State('current_id', 'children')])
+def render_tab(tab, current_id):
 
     # Tab value is in format "tab-1"
-    current_id = int(tab[-1])
+    print(tab, current_id)
+    new_id = tab
 
-    key = f'personData{current_id}'
+    key = f'personData{new_id}'
     data = json.loads(store.lrange(key, 0, 0)[0])
 
     firstName, lastName, birthdate = data['firstname'], data['lastname'], data['birthdate']
     cont = f'{firstName} {lastName} {birthdate}'
 
-    return html.Div([
+    return new_id, html.Div([
         html.H3(str(cont))
     ])
 
 
-@app.callback(Output('table', 'figure'), [Input('interval-component', 'n_intervals')])
-def update_table(n_intervals):
+@app.callback(Output('table', 'figure'), 
+              [Input('interval-component', 'n_intervals')],
+              [State('current_id', 'children')])
+def update_table(n_intervals, current_id):
+    if current_id == None:
+        current_id = 1
     TABLE_SIZE = 20
     key = f'personData{current_id}'
 
@@ -95,8 +113,7 @@ def update_table(n_intervals):
             key = f'sensor_{id}'
             values[key].append(s['value'])
 
-    df = pd.DataFrame(values)
-    return make_table(df)
+    return make_table(values)
 
 
 if __name__ == '__main__':
