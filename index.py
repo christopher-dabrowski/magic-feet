@@ -65,17 +65,14 @@ def make_table(values, cell_colors=None):
 def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> dict:
     """Create figure of analog meter displaying value of singe pressure sensor"""
 
-    # Don't show infinite increase and delta without previous value
-    mode = 'number+delta+gauge' if previous_value else 'number+gauge'
-
     return dict(
         data=[
             dict(
                 type='indicator',
-                mode=mode,
+                mode='number+delta+gauge',
                 title=f'Foot pressure sensor {sensor_number}',
                 value=value,
-                delta=dict(reference=previous_value, relative=True),
+                delta=dict(reference=previous_value, relative=False),
                 gauge=dict(
                     axis=dict(visible=True, range=[0, 1023])
                 ),
@@ -175,10 +172,21 @@ def update_table(n_intervals, current_id):
 
 
 @app.callback(Output('singe-sensor-indicator', 'figure'),
-              [Input('single-sensor-tabs', 'value')])
-def update_singe_sensor_indicator(selected_sensor: str):
+              [Input('interval-component', 'n_intervals'),
+               Input('single-sensor-tabs', 'value'),
+               Input('current-id', 'data')])
+def update_singe_sensor_indicator(_, selected_sensor, current_id):
+    if current_id is None or selected_sensor is None:
+        raise PreventUpdate
 
-    return make_foot_pressure_indicator(selected_sensor, 400, 0)
+    key = f'personData{current_id}'
+    rawList = store.lrange(key, 0, 1)
+    data = [json.loads(d.decode()) for d in rawList]
+
+    i = int(selected_sensor) - 1  # 0 based index
+    values = (value['trace']['sensors'][i]['value'] for value in data)
+
+    return make_foot_pressure_indicator(selected_sensor, *values)
 
 
 if __name__ == '__main__':
