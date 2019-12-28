@@ -76,9 +76,11 @@ def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> d
                 gauge=dict(
                     axis=dict(visible=True, range=[0, 1023])
                 ),
-                domain=dict(x=[0, 1], y=[0, 1])
+                # domain=dict(x=[0, .6])
             )
-        ])
+        ],
+        layout=dict(width=500, height=370)
+    )
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
