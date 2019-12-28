@@ -90,7 +90,23 @@ app.layout = html.Div(children=[
     html.Div(id='single-sensor-container', children=[  # Display single selected sensor
         dcc.Tabs(id='single-sensor-tabs', value='1',
                  children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(1, 7)]),
-        html.Div(id='sensor-placeholder')
+        html.Div(id='sensor-placeholder '),
+        dcc.Graph(id='singe-sensor-indicator',
+                  figure=dict(
+                      data=[
+                          dict(
+                              type='indicator',
+                              mode='number+delta+gauge',
+                              title='Foot pressure sensor N',
+                              value=200,
+                              delta=dict(reference=300, relative=True),
+                              gauge=dict(
+                                   axis=dict(visible=True, range=[0, 1023])
+                              ),
+                              domain=dict(x=[0, 1], y=[0, 1])
+                          )
+                      ])
+                  )
     ]),
 
     dcc.Interval(id='interval-component',
@@ -150,6 +166,11 @@ def update_table(n_intervals, current_id):
             colors[key] = [map_value_to_RGB_string(v) for v in values[key]]
 
     return make_table(values, list(colors.values()))
+
+
+# @app.callback(Output())
+def update_singe_sensor_indicator():
+    pass
 
 
 if __name__ == '__main__':
