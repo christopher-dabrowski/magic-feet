@@ -110,7 +110,7 @@ app.layout = html.Div(children=[
 
     html.Div(id='single-sensor-container', children=[  # Display single selected sensor
         dcc.Tabs(id='single-sensor-tabs', value='1',
-                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(1, 7)]),
+                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
         dcc.Graph(id='singe-sensor-indicator')
     ]),
 
@@ -185,8 +185,8 @@ def update_singe_sensor_indicator(_, selected_sensor, current_id):
     rawList = store.lrange(key, 0, 1)
     data = [json.loads(d.decode()) for d in rawList]
 
-    i = int(selected_sensor) - 1  # 0 based index
-    values = (value['trace']['sensors'][i]['value'] for value in data)
+    values = (value['trace']['sensors'][int(selected_sensor)]['value']
+              for value in data)
 
     return make_foot_pressure_indicator(selected_sensor, *values)
 
