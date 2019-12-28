@@ -87,6 +87,12 @@ app.layout = html.Div(children=[
 
     dcc.Graph(id='table'),
 
+    html.Div(id='single-sensor-container', children=[  # Display single selected sensor
+        dcc.Tabs(id='single-sensor-tabs', value='1',
+                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(1, 7)]),
+        html.Div(id='sensor-placeholder')
+    ]),
+
     dcc.Interval(id='interval-component',
                  interval=1*1000,
                  n_intervals=0)
@@ -104,9 +110,10 @@ def on_person_tab_change(new_id):
     firstName, lastName, birthdate = preson['firstname'], preson['lastname'], preson['birthdate']
     cont = f'{firstName} {lastName} {birthdate}'
 
-    return new_id, html.Div([
-        html.H3(cont)
-    ])
+    return (
+        new_id,
+        html.Div([html.H3(cont)])
+    )
 
 
 @app.callback(Output('table', 'figure'),
