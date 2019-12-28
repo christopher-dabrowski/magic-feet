@@ -62,6 +62,28 @@ def make_table(values, cell_colors=None):
     return table
 
 
+def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> dict:
+    """Create figure of analog meter displaying value of singe pressure sensor"""
+
+    # Don't show infinite increase and delta without previous value
+    mode = 'number+delta+gauge' if previous_value else 'number+gauge'
+
+    return dict(
+        data=[
+            dict(
+                type='indicator',
+                mode=mode,
+                title=f'Foot pressure sensor {sensor_number}',
+                value=value,
+                delta=dict(reference=previous_value, relative=True),
+                gauge=dict(
+                    axis=dict(visible=True, range=[0, 1023])
+                ),
+                domain=dict(x=[0, 1], y=[0, 1])
+            )
+        ])
+
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -90,23 +112,7 @@ app.layout = html.Div(children=[
     html.Div(id='single-sensor-container', children=[  # Display single selected sensor
         dcc.Tabs(id='single-sensor-tabs', value='1',
                  children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(1, 7)]),
-        html.Div(id='sensor-placeholder '),
-        dcc.Graph(id='singe-sensor-indicator',
-                  figure=dict(
-                      data=[
-                          dict(
-                              type='indicator',
-                              mode='number+delta+gauge',
-                              title='Foot pressure sensor N',
-                              value=200,
-                              delta=dict(reference=300, relative=True),
-                              gauge=dict(
-                                   axis=dict(visible=True, range=[0, 1023])
-                              ),
-                              domain=dict(x=[0, 1], y=[0, 1])
-                          )
-                      ])
-                  )
+        dcc.Graph(id='singe-sensor-indicator')
     ]),
 
     dcc.Interval(id='interval-component',
@@ -168,9 +174,11 @@ def update_table(n_intervals, current_id):
     return make_table(values, list(colors.values()))
 
 
-# @app.callback(Output())
-def update_singe_sensor_indicator():
-    pass
+@app.callback(Output('singe-sensor-indicator', 'figure'),
+              [Input('single-sensor-tabs', 'value')])
+def update_singe_sensor_indicator(selected_sensor: str):
+
+    return make_foot_pressure_indicator(selected_sensor, 400, 0)
 
 
 if __name__ == '__main__':
