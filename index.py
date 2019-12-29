@@ -62,6 +62,27 @@ def make_table(values, cell_colors=None):
     return table
 
 
+def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> dict:
+    """Create figure of analog meter displaying value of singe pressure sensor"""
+
+    return dict(
+        data=[
+            dict(
+                type='indicator',
+                mode='number+delta+gauge',
+                title=f'Foot pressure sensor {sensor_number}',
+                value=value,
+                delta=dict(reference=previous_value, relative=False),
+                gauge=dict(
+                    axis=dict(visible=True, range=[0, 1023])
+                ),
+                # domain=dict(x=[0, .6])
+            )
+        ],
+        layout=dict(width=500, height=370)
+    )
+
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -87,6 +108,12 @@ app.layout = html.Div(children=[
 
     dcc.Graph(id='table'),
 
+    html.Div(id='single-sensor-container', children=[  # Display single selected sensor
+        dcc.Tabs(id='single-sensor-tabs', value='1',
+                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
+        dcc.Graph(id='singe-sensor-indicator')
+    ]),
+
     dcc.Interval(id='interval-component',
                  interval=1*1000,
                  n_intervals=0)
@@ -104,9 +131,10 @@ def on_person_tab_change(new_id):
     firstName, lastName, birthdate = preson['firstname'], preson['lastname'], preson['birthdate']
     cont = f'{firstName} {lastName} {birthdate}'
 
-    return new_id, html.Div([
-        html.H3(cont)
-    ])
+    return (
+        new_id,
+        html.Div([html.H3(cont)])
+    )
 
 
 @app.callback(Output('table', 'figure'),
@@ -143,6 +171,24 @@ def update_table(n_intervals, current_id):
             colors[key] = [map_value_to_RGB_string(v) for v in values[key]]
 
     return make_table(values, list(colors.values()))
+
+
+@app.callback(Output('singe-sensor-indicator', 'figure'),
+              [Input('interval-component', 'n_intervals'),
+               Input('single-sensor-tabs', 'value'),
+               Input('current-id', 'data')])
+def update_singe_sensor_indicator(_, selected_sensor, current_id):
+    if current_id is None or selected_sensor is None:
+        raise PreventUpdate
+
+    key = f'personData{current_id}'
+    rawList = store.lrange(key, 0, 1)
+    data = [json.loads(d.decode()) for d in rawList]
+
+    values = (value['trace']['sensors'][int(selected_sensor)]['value']
+              for value in data)
+
+    return make_foot_pressure_indicator(selected_sensor, *values)
 
 
 if __name__ == '__main__':
