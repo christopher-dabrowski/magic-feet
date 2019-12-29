@@ -10,26 +10,51 @@ import json
 import datetime as dt
 import time
 import requests
+from typing import Tuple
+import numpy as np
 
 store = redis.Redis()
 
-#def make_table(df):
-#    table = go.Figure(data=[go.Table(
-#        header=dict(values=list(df.columns),
-#                    fill_color='paleturquoise',
-#                    align='left'),
-#        cells=dict(values=[df[c] for c in df.columns])
-#    )])
-#
-#    return table
 
-def make_table(values):
+def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
+    # FIXME: Move those functions to some other module
+    """Linear interpolation from sensor value to RGB color"""
 
+    smallest, biggest = 0, 1023  # From doctor Zawadzki's documentation
+    value_range = [smallest, biggest]
+
+    # Mapping from white to green
+    red_range = [255, 85]
+    green_range = [255, 255]
+    blue_range = [255, 85]
+
+    r = np.interp(value, value_range, red_range)
+    g = np.interp(value, value_range, green_range)
+    b = np.interp(value, value_range, blue_range)
+
+    return r, g, b
+
+
+def create_RGB_string(rgb: Tuple[float, float, float]) -> str:
+    """Create rgb string for Plotly"""
+
+    value = ', '.join((str(c) for c in rgb))
+    return f'rgb({value})'
+
+
+def map_value_to_RGB_string(value: float) -> str:
+    """Support function to join mapping value and converting to Ploty string"""
+
+    return create_RGB_string(map_value_to_RGB(value))
+
+
+def make_table(values, cell_colors=None):
     table = go.Figure(data=[go.Table(
-        header=dict(values=list(values.keys()),
+        header=dict(values=[c.replace('_', ' ') for c in values.keys()],
                     fill_color='paleturquoise',
                     align='left'),
-        cells=dict(values=[values.get(key) for key in values.keys()])
+        cells=dict(values=list(values.values()),
+                   fill=dict(color=cell_colors))
     )])
 
     return table
@@ -58,7 +83,7 @@ app.layout = html.Div(children=[
     html.Div(id='tabs-content'),
 
     dcc.Graph(id='table'),
-    
+
     html.Div(id='current_id', style={'display': 'none'}),
 
     dcc.Interval(id='interval-component',
@@ -66,9 +91,10 @@ app.layout = html.Div(children=[
                  n_intervals=0)
 ])
 
+
 @app.callback([Output('current_id', 'children'),
-              Output('tabs-content', 'children')
-              ],
+               Output('tabs-content', 'children')
+               ],
               [Input('tabs', 'value')],
               [State('current_id', 'children')])
 def render_tab(tab, current_id):
@@ -88,7 +114,7 @@ def render_tab(tab, current_id):
     ])
 
 
-@app.callback(Output('table', 'figure'), 
+@app.callback(Output('table', 'figure'),
               [Input('interval-component', 'n_intervals')],
               [State('current_id', 'children')])
 def update_table(n_intervals, current_id):
@@ -113,7 +139,14 @@ def update_table(n_intervals, current_id):
             key = f'sensor_{id}'
             values[key].append(s['value'])
 
-    return make_table(values)
+    colors = {}
+    for key in values.keys():
+        if key == 'time':
+            colors[key] = ['white'] * len(values[key])
+        else:
+            colors[key] = [map_value_to_RGB_string(v) for v in values[key]]
+
+    return make_table(values, list(colors.values()))
 
 
 if __name__ == '__main__':
