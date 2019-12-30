@@ -1,0 +1,7 @@
+include feet_animation/feet_animation.min.js
+include feet_animation/feet_animation.min.js.map
+include feet_animation/metadata.json
+include feet_animation/package-info.json
+include README.md
+include LICENSE
+include package.json
