@@ -8,8 +8,6 @@ app = dash.Dash(__name__)
 app.layout = html.Div([
     feet_animation.FeetAnimation(
         id='input',
-        value='my-value',
-        label='my-label'
     ),
     html.Div(id='output')
 ])

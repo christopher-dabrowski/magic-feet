@@ -25,12 +25,12 @@ module.exports = (env, argv) => {
     }
 
     let filename = (overrides.output || {}).filename;
-    if(!filename) {
+    if (!filename) {
         const modeSuffix = mode === 'development' ? 'dev' : 'min';
         filename = `${dashLibraryName}.${modeSuffix}.js`;
     }
 
-    const entry = overrides.entry || {main: './src/lib/index.js'};
+    const entry = overrides.entry || { main: './src/lib/index.js' };
 
     const devtool = overrides.devtool || 'source-map';
 
@@ -54,6 +54,21 @@ module.exports = (env, argv) => {
         externals,
         module: {
             rules: [
+                // react-svg-plugin
+                {
+                    test: /\.svg$/,
+                    use: [
+                        {
+                            loader: "babel-loader"
+                        },
+                        {
+                            loader: "react-svg-loader",
+                            options: {
+                                jsx: true // true outputs JSX tags
+                            }
+                        }
+                    ]
+                },
                 {
                     test: /\.jsx?$/,
                     exclude: /node_modules/,
