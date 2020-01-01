@@ -68,7 +68,13 @@ const FeetAnimation = ({ id, setProps, width, height, sensorValues }) => {
                 .style('font-size', `${fontSize}px`)
                 .text(value);
         }
-    });
+
+        // Cleanup
+        return () => {
+            const svg = d3.select('#feet-image');
+            svg.selectAll('.sensor-value').remove();
+        }
+    }, [...sensorValues]);
 
     return (
         <div id={id}>
