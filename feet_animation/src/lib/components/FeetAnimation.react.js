@@ -1,19 +1,35 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FeetSVG from '../../images/feet.svg';
+import * as d3 from "d3";
 
 /**
  * Custom component for displaying sensors position on the feet and their current value
  */
 const FeetAnimation = ({ id, setProps, width, height }) => {
 
+    useEffect(() => {
+        // use d3
+        console.log('hi d3');
+        const svg = d3.select('#feet-image');
+        const wholeImage = svg.select('g');
+
+        wholeImage.attr('stroke', 'blue');
+        wholeImage.attr('stroke-width', 1);
+
+
+        return () => { // Here we can add cleanup
+            console.log('nice cleanup')
+        };
+    });
+
     return (
         <div id={id}>
             <p style={{ textAlign: 'center' }}>I'm the best Dash component!</p>
 
-            {/* Svg container */}
+            {/* Image container */}
             <div width={width} height={height}>
-                <FeetSVG width={width} height={height} />
+                <FeetSVG id="feet-image" width={width} height={height} />
             </div>
         </div >
     )
