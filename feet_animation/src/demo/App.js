@@ -11,19 +11,37 @@ class App extends Component {
             sensorValues: [896, 568, 708, 23, 0, 5]
         };
         this.setProps = this.setProps.bind(this);
+        this.animateChange = this.animateChange.bind(this);
+        this.generateValues = this.generateValues.bind(this);
+        this.timerId = null;
     }
 
     setProps(newProps) {
         this.setState(newProps);
     }
 
+    generateValues() {
+        const lValue = Math.round(Math.random() * 1023);
+        const rvalue = Math.round(Math.random() * 1023);
+        this.setState({ sensorValues: [lValue, lValue, lValue, rvalue, rvalue, rvalue] });
+    }
+
+    animateChange(e) {
+        const checked = e.target.checked;
+        if (checked) {
+            this.timerId = setInterval(this.generateValues, 1000);
+        }
+        else {
+            clearInterval(this.timerId);
+        }
+    }
+
     render() {
         let style = {
             display: 'flex',
-            justifyContent: 'center'
+            alignItems: 'center',
+            flexDirection: 'column'
         };
-
-        console.log(this.state);
 
         return (
             <div style={style} >
@@ -31,6 +49,11 @@ class App extends Component {
                     setProps={this.setProps}
                     {...this.state}
                 />
+
+                <form style={{ marginTop: '20px' }}>
+                    <input onChange={this.animateChange} type="checkbox" name="animate" />
+                    <label>Animate values</label>
+                </form>
             </div>
         )
     }
