@@ -10,14 +10,18 @@ const FeetAnimation = ({ id, setProps, width, height }) => {
     return (
         <div id={id}>
             <p style={{ textAlign: 'center' }}>I'm the best Dash component!</p>
-            <FeetSVG width={width} height={height} />
+
+            {/* Svg container */}
+            <div width={width} height={height}>
+                <FeetSVG width={width} height={height} />
+            </div>
         </div >
     )
 }
 
 FeetAnimation.defaultProps = {
-    width: 600,
-    height: 600
+    width: 350,
+    height: 350
 };
 
 // TODO: Add sensor values to props
