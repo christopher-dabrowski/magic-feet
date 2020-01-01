@@ -8,7 +8,7 @@ class App extends Component {
     constructor() {
         super();
         this.state = {
-            value: ''
+            sensorValues: [896, 568, 708, 23, 0, 5]
         };
         this.setProps = this.setProps.bind(this);
     }
@@ -22,6 +22,8 @@ class App extends Component {
             display: 'flex',
             justifyContent: 'center'
         };
+
+        console.log(this.state);
 
         return (
             <div style={style} >

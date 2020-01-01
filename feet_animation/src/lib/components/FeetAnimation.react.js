@@ -6,7 +6,9 @@ import * as d3 from "d3";
 /**
  * Custom component for displaying sensors position on the feet and their current value
  */
-const FeetAnimation = ({ id, setProps, width, height }) => {
+const FeetAnimation = ({ id, setProps, width, height, sensorValues }) => {
+
+    console.log(sensorValues);
 
     // Format image (make stroke change on average sensor value)
     useEffect(() => {
@@ -83,10 +85,20 @@ FeetAnimation.propTypes = {
     id: PropTypes.string,
 
     /**
-     * Size of the component
+     * Width of the component in px
      */
     width: PropTypes.number,
+
+    /**
+    * Height of the component in px
+    */
     height: PropTypes.number,
+
+    /**
+     * Feet pressure sensor values
+     */
+    sesnorValues: PropTypes.arrayOf(PropTypes.number).isRequired,
+
 
     /**
      * Dash-assigned callback that should be called to report property changes
