@@ -8,14 +8,20 @@ import * as d3 from "d3";
  */
 const FeetAnimation = ({ id, setProps, width, height }) => {
 
+    // Format image (make stroke change on average sensor value)
     useEffect(() => {
-        // use d3
         console.log('hi d3');
         const svg = d3.select('#feet-image');
         const wholeImage = svg.select('g');
 
         wholeImage.attr('stroke', 'blue');
         wholeImage.attr('stroke-width', 1);
+
+        const rightFoot = wholeImage.select('path');
+        const leftFoot = wholeImage.select('g');
+
+        rightFoot.attr('stroke', 'red');
+        leftFoot.attr('stroke-width', 2);
 
 
         return () => { // Here we can add cleanup
