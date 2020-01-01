@@ -10,7 +10,6 @@ const FeetAnimation = ({ id, setProps, width, height }) => {
 
     // Format image (make stroke change on average sensor value)
     useEffect(() => {
-        console.log('hi d3');
         const svg = d3.select('#feet-image');
         const wholeImage = svg.select('g');
 
@@ -27,6 +26,25 @@ const FeetAnimation = ({ id, setProps, width, height }) => {
         return () => { // Here we can add cleanup
             console.log('nice cleanup')
         };
+    });
+
+    // Display sensor values
+    useEffect(() => {
+        const svg = d3.select('#feet-image');
+
+        const r = '5%';
+        const x = '20%';
+        const y = '35%';
+        const color = 'purple';
+
+        const g = svg.append('g');
+
+        g.append('circle')
+            .attr('cx', x)
+            .attr('cy', y)
+            .attr('r', r)
+            .style('fill', color);
+
     });
 
     return (
