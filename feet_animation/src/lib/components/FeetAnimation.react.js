@@ -32,18 +32,29 @@ const FeetAnimation = ({ id, setProps, width, height }) => {
     useEffect(() => {
         const svg = d3.select('#feet-image');
 
-        const r = '5%';
-        const x = '20%';
-        const y = '35%';
+        const r = 7;
+        const x = 20;
+        const y = 35;
         const color = 'purple';
+        const value = 1023;
 
-        const g = svg.append('g');
+        const g = svg.append('g')
+            .classed('sensor-value', true);
 
         g.append('circle')
-            .attr('cx', x)
-            .attr('cy', y)
-            .attr('r', r)
+            .attr('cx', `${x}%`)
+            .attr('cy', `${y}%`)
+            .attr('r', `${r}%`)
             .style('fill', color);
+
+        const textY = y * 1.04;
+        const fontSize = r * 1;
+        g.append('text')
+            .attr('x', `${x}%`)
+            .attr('y', `${textY}%`)
+            .attr('text-anchor', 'middle')
+            .style('font-size', `${fontSize}px`)
+            .text(value);
 
     });
 
