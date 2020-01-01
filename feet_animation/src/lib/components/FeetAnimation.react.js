@@ -39,7 +39,7 @@ const FeetAnimation = ({ id, setProps, width, height, sensorValues }) => {
         const svg = d3.select('#feet-image');
         const r = 7;
         // TODO: Interpolate color value
-        const color = 'purple';
+        const color = '#80bd9e';
 
 
         const positions = [
