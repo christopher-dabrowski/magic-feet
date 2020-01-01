@@ -1,5 +1,5 @@
 /* eslint no-magic-numbers: 0 */
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 import { FeetAnimation } from '../lib';
 
@@ -18,8 +18,13 @@ class App extends Component {
     }
 
     render() {
+        let style = {
+            display: 'flex',
+            justifyContent: 'center'
+        };
+
         return (
-            <div>
+            <div style={style} >
                 <FeetAnimation
                     setProps={this.setProps}
                     {...this.state}

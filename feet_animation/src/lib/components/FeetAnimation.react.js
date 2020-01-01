@@ -7,13 +7,17 @@ import FeetSVG from '../../images/feet.svg';
  */
 export default class FeetAnimation extends Component {
     render() {
-        const { id, setProps } = this.props;
+        let { id, setProps, width, height } = this.props;
+
+        // Set default values
+        width = width || 600;
+        height = height || 600;
 
         return (
             <div id={id}>
-                <p>I'm the best Dash component!</p>
-                <FeetSVG />
-            </div>
+                <p style={{ textAlign: 'center' }}>I'm the best Dash component!</p>
+                <FeetSVG width={width} height={height} />
+            </div >
         );
     }
 }
@@ -26,6 +30,12 @@ FeetAnimation.propTypes = {
      * The ID used to identify this component in Dash callbacks.
      */
     id: PropTypes.string,
+
+    /**
+     * Size of the component
+     */
+    width: PropTypes.number,
+    height: PropTypes.number,
 
     /**
      * Dash-assigned callback that should be called to report property changes
