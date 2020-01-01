@@ -2,6 +2,7 @@ import React, { Component, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FeetSVG from '../../images/feet.svg';
 import * as d3 from "d3";
+import { mean } from 'ramda';
 
 /**
  * Custom component for displaying sensors position on the feet and their current value
@@ -12,21 +13,26 @@ const FeetAnimation = ({ id, setProps, width, height, sensorValues }) => {
     useEffect(() => {
         const svg = d3.select('#feet-image');
         const wholeImage = svg.select('g');
-
-        wholeImage.attr('stroke', 'blue');
-        wholeImage.attr('stroke-width', 1);
-
         const rightFoot = wholeImage.select('path');
         const leftFoot = wholeImage.select('g');
 
-        rightFoot.attr('stroke', 'red');
-        leftFoot.attr('stroke-width', 2);
+        const leftValues = sensorValues.slice(0, 3);
+        const rightValues = sensorValues.slice(3);
 
+        const mapValuesToStrokeWidth = (values) => {
+            const MAX_VALUE = 1023;
+            const a = 0.5;
+            const b = 2;
 
-        return () => { // Here we can add cleanup
-            console.log('nice cleanup')
-        };
-    });
+            const avg = mean(values);
+            return avg / MAX_VALUE * (a - b) + a;
+        }
+
+        const [leftWidth, rightWidth] = [leftValues, rightValues].map(mapValuesToStrokeWidth);
+
+        leftFoot.attr('stroke-width', leftWidth);
+        rightFoot.attr('stroke-width', rightWidth);
+    }, [...sensorValues]);
 
     // Display sensor values
     useEffect(() => {
