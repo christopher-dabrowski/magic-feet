@@ -21,11 +21,11 @@ const FeetAnimation = ({ id, setProps, width, height, sensorValues }) => {
 
         const mapValuesToStrokeWidth = (values) => {
             const MAX_VALUE = 1023;
-            const a = 0.5;
-            const b = 2;
+            const a = 0.4;
+            const b = 1.5;
 
             const avg = mean(values);
-            return avg / MAX_VALUE * (a - b) + a;
+            return avg / MAX_VALUE * (b - a) + a;
         }
 
         const [leftWidth, rightWidth] = [leftValues, rightValues].map(mapValuesToStrokeWidth);
@@ -99,7 +99,6 @@ FeetAnimation.defaultProps = {
     height: 350
 };
 
-// TODO: Add sensor values to props
 FeetAnimation.propTypes = {
     /**
      * The ID used to identify this component in Dash callbacks.
