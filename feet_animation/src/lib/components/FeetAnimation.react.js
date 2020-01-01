@@ -5,21 +5,17 @@ import FeetSVG from '../../images/feet.svg';
 /**
  * Custom component for displaying sensors position on the feet and their current value
  */
-export default class FeetAnimation extends Component {
-    render() {
-        let { id, setProps, width, height } = this.props;
+const FeetAnimation = ({ id, setProps, width, height }) => {
+    // Set default values
+    width = width || 600;
+    height = height || 600;
 
-        // Set default values
-        width = width || 600;
-        height = height || 600;
-
-        return (
-            <div id={id}>
-                <p style={{ textAlign: 'center' }}>I'm the best Dash component!</p>
-                <FeetSVG width={width} height={height} />
-            </div >
-        );
-    }
+    return (
+        <div id={id}>
+            <p style={{ textAlign: 'center' }}>I'm the best Dash component!</p>
+            <FeetSVG width={width} height={height} />
+        </div >
+    )
 }
 
 FeetAnimation.defaultProps = {};
@@ -43,3 +39,5 @@ FeetAnimation.propTypes = {
      */
     setProps: PropTypes.func
 };
+
+export default FeetAnimation;
