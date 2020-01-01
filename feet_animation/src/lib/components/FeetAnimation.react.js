@@ -6,9 +6,6 @@ import FeetSVG from '../../images/feet.svg';
  * Custom component for displaying sensors position on the feet and their current value
  */
 const FeetAnimation = ({ id, setProps, width, height }) => {
-    // Set default values
-    width = width || 600;
-    height = height || 600;
 
     return (
         <div id={id}>
@@ -18,7 +15,10 @@ const FeetAnimation = ({ id, setProps, width, height }) => {
     )
 }
 
-FeetAnimation.defaultProps = {};
+FeetAnimation.defaultProps = {
+    width: 600,
+    height: 600
+};
 
 // TODO: Add sensor values to props
 FeetAnimation.propTypes = {
