@@ -7,7 +7,7 @@ import { mean } from 'ramda';
 /**
  * Custom component for displaying sensors position on the feet and their current value
  */
-const FeetAnimation = ({ id, setProps, width, height, sensorValues }) => {
+const FeetAnimation = ({ id, className, setProps, width, height, sensorValues }) => {
 
     // Format image (make stroke change on average sensor value)
     useEffect(() => {
@@ -83,7 +83,7 @@ const FeetAnimation = ({ id, setProps, width, height, sensorValues }) => {
     }, [...sensorValues]);
 
     return (
-        <div id={id}>
+        <div id={id} className={className}>
             <p style={{ textAlign: 'center' }}>I'm the best Dash component!</p>
 
             {/* Image container */}
@@ -104,6 +104,11 @@ FeetAnimation.propTypes = {
      * The ID used to identify this component in Dash callbacks.
      */
     id: PropTypes.string,
+
+    /**
+     * CSS classes added to the main div
+     */
+    className: PropTypes.string,
 
     /**
      * Width of the component in px
