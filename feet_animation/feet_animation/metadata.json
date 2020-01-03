@@ -1,0 +1,66 @@
+{
+  "src/lib/components/FeetAnimation.react.js": {
+    "description": "Custom component for displaying sensors position on the feet and their current value",
+    "displayName": "FeetAnimation",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "CSS classes added to the main div"
+      },
+      "width": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Width of the component in px",
+        "defaultValue": {
+          "value": "350",
+          "computed": false
+        }
+      },
+      "height": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Height of the component in px",
+        "defaultValue": {
+          "value": "350",
+          "computed": false
+        }
+      },
+      "sensorValues": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "Feet pressure sensor values",
+        "defaultValue": {
+          "value": "[0, 0, 0, 0, 0, 0]",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      }
+    }
+  }
+}

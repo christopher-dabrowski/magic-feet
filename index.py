@@ -6,6 +6,9 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 from plotly.colors import n_colors
 
+# Custom component
+from feet_animation import FeetAnimation
+
 import redis
 import json
 import datetime as dt
@@ -108,11 +111,17 @@ app.layout = html.Div(children=[
 
     dcc.Graph(id='table'),
 
-    html.Div(id='single-sensor-container', children=[  # Display single selected sensor
-        dcc.Tabs(id='single-sensor-tabs', value='1',
-                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
-        dcc.Graph(id='singe-sensor-indicator')
-    ]),
+    html.Div(id='sensor-row',
+             children=[
+                 html.Div(id='single-sensor-container', children=[  # Display single selected sensor
+                     dcc.Tabs(id='single-sensor-tabs', value='1',
+                              children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
+                     dcc.Graph(id='singe-sensor-indicator')
+                 ]),
+                #  Feet animation custom component
+                 FeetAnimation(id='feet-animation'),
+             ]
+             ),
 
     dcc.Interval(id='interval-component',
                  interval=1*1000,
@@ -189,6 +198,22 @@ def update_singe_sensor_indicator(_, selected_sensor, current_id):
               for value in data)
 
     return make_foot_pressure_indicator(selected_sensor, *values)
+
+
+@app.callback(Output('feet-animation', 'sensorValues'),
+              [Input('interval-component', 'n_intervals'),
+               Input('current-id', 'data')])
+def update_feet_animation(_, current_id):
+    if current_id is None:
+        raise PreventUpdate
+
+    key = f'personData{current_id}'
+    rawList = store.lrange(key, 0, 0)
+    data = [json.loads(d.decode()) for d in rawList][0]
+
+    values = [sensor['value'] for sensor in data['trace']['sensors']]
+
+    return values
 
 
 if __name__ == '__main__':

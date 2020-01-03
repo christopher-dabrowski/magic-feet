@@ -1,0 +1,15 @@
+Package: feetAnimation
+Title: Element for displayin position of sensors on feet and their curren values
+Version: 0.0.1
+Authors @R: as.person(c(Krzysiek <293101@pw.edu.pl>))
+Description: Element for displayin position of sensors on feet and their curren values
+Depends: R (>= 3.0.2)
+Imports: 
+Suggests: 
+License: MIT + file LICENSE
+URL: 
+BugReports: 
+Encoding: UTF-8
+LazyData: true
+Author: Krzysiek [aut]
+Maintainer: Krzysiek <293101@pw.edu.pl>
