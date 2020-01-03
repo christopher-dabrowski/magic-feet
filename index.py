@@ -111,14 +111,17 @@ app.layout = html.Div(children=[
 
     dcc.Graph(id='table'),
 
-    html.Div(id='single-sensor-container', children=[  # Display single selected sensor
-        dcc.Tabs(id='single-sensor-tabs', value='1',
-                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
-        dcc.Graph(id='singe-sensor-indicator')
-    ]),
-
-    # FeetAnimation(id='feet-animation'),
-    FeetAnimation(id='feet-animation'),
+    html.Div(id='sensor-row',
+             children=[
+                 html.Div(id='single-sensor-container', children=[  # Display single selected sensor
+                     dcc.Tabs(id='single-sensor-tabs', value='1',
+                              children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
+                     dcc.Graph(id='singe-sensor-indicator')
+                 ]),
+                #  Feet animation custom component
+                 FeetAnimation(id='feet-animation'),
+             ]
+             ),
 
     dcc.Interval(id='interval-component',
                  interval=1*1000,
