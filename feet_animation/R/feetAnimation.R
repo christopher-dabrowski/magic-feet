@@ -1,8 +1,8 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
-feetAnimation <- function(id=NULL, label=NULL, value=NULL) {
+feetAnimation <- function(id=NULL, className=NULL, width=NULL, height=NULL, sesnorValues=NULL) {
     
-    props <- list(id=id, label=label, value=value)
+    props <- list(id=id, className=className, width=width, height=height, sesnorValues=sesnorValues)
     if (length(props) > 0) {
         props <- props[!vapply(props, is.null, logical(1))]
     }
@@ -10,7 +10,7 @@ feetAnimation <- function(id=NULL, label=NULL, value=NULL) {
         props = props,
         type = 'FeetAnimation',
         namespace = 'feet_animation',
-        propNames = c('id', 'label', 'value'),
+        propNames = c('id', 'className', 'width', 'height', 'sesnorValues'),
         package = 'feetAnimation'
         )
 

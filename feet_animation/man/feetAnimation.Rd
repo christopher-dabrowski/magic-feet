@@ -6,17 +6,21 @@
 \title{FeetAnimation component}
 
 \description{
-ExampleComponent is an example component. It takes a property, `label`, and displays it. It renders an input with the property `value` which is editable by the user.
+Custom component for displaying sensors position on the feet and their current value
 }
 
 \usage{
-feetAnimation(id=NULL, label=NULL, value=NULL)
+feetAnimation(id=NULL, className=NULL, width=NULL, height=NULL, sesnorValues=NULL)
 }
 
 \arguments{
 \item{id}{Character. The ID used to identify this component in Dash callbacks.}
 
-\item{label}{Character. A label that will be printed when this component is rendered.}
+\item{className}{Character. CSS classes added to the main div}
 
-\item{value}{Character. The value displayed in the input.}
+\item{width}{Numeric. Width of the component in px}
+
+\item{height}{Numeric. Height of the component in px}
+
+\item{sesnorValues}{List of numerics. Feet pressure sensor values}
 }

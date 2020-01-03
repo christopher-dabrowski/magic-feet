@@ -1,6 +1,6 @@
 {
   "src/lib/components/FeetAnimation.react.js": {
-    "description": "ExampleComponent is an example component.\nIt takes a property, `label`, and\ndisplays it.\nIt renders an input with the property `value`\nwhich is editable by the user.",
+    "description": "Custom component for displaying sensors position on the feet and their current value",
     "displayName": "FeetAnimation",
     "methods": [],
     "props": {
@@ -11,19 +11,44 @@
         "required": false,
         "description": "The ID used to identify this component in Dash callbacks."
       },
-      "label": {
-        "type": {
-          "name": "string"
-        },
-        "required": true,
-        "description": "A label that will be printed when this component is rendered."
-      },
-      "value": {
+      "className": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "The value displayed in the input."
+        "description": "CSS classes added to the main div"
+      },
+      "width": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Width of the component in px",
+        "defaultValue": {
+          "value": "350",
+          "computed": false
+        }
+      },
+      "height": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Height of the component in px",
+        "defaultValue": {
+          "value": "350",
+          "computed": false
+        }
+      },
+      "sesnorValues": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": true,
+        "description": "Feet pressure sensor values"
       },
       "setProps": {
         "type": {
