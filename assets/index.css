@@ -1,3 +1,9 @@
+#feet-animation {
+    width: 350px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19),
+        0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
 #single-sensor-container {
     width: 500px;
     margin: 20px auto;

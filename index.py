@@ -118,7 +118,7 @@ app.layout = html.Div(children=[
     ]),
 
     # FeetAnimation(id='feet-animation'),
-    FeetAnimation(id='feet-animation', sensorValues=[0, 0, 0, 0, 0, 0]),
+    FeetAnimation(id='feet-animation'),
 
     dcc.Interval(id='interval-component',
                  interval=1*1000,

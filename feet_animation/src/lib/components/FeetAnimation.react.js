@@ -84,7 +84,7 @@ const FeetAnimation = ({ id, className, setProps, width, height, sensorValues })
     return (
         <div id={id} className={className}>
             {/* Image container */}
-            <div width={width} height={height}>
+            <div style={{ width: width, height: height }}>
                 <FeetSVG id="feet-image" width={width} height={height} />
             </div>
         </div >
