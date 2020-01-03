@@ -10,7 +10,7 @@ Custom component for displaying sensors position on the feet and their current v
 }
 
 \usage{
-feetAnimation(id=NULL, className=NULL, width=NULL, height=NULL, sesnorValues=NULL)
+feetAnimation(id=NULL, className=NULL, width=NULL, height=NULL, sensorValues=NULL)
 }
 
 \arguments{
@@ -22,5 +22,5 @@ feetAnimation(id=NULL, className=NULL, width=NULL, height=NULL, sesnorValues=NUL
 
 \item{height}{Numeric. Height of the component in px}
 
-\item{sesnorValues}{List of numerics. Feet pressure sensor values}
+\item{sensorValues}{List of numerics. Feet pressure sensor values}
 }

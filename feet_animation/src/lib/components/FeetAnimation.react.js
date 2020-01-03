@@ -8,7 +8,6 @@ import { mean } from 'ramda';
  * Custom component for displaying sensors position on the feet and their current value
  */
 const FeetAnimation = ({ id, className, setProps, width, height, sensorValues }) => {
-
     // Format image (make stroke change on average sensor value)
     useEffect(() => {
         const svg = d3.select('#feet-image');
@@ -84,8 +83,6 @@ const FeetAnimation = ({ id, className, setProps, width, height, sensorValues })
 
     return (
         <div id={id} className={className}>
-            <p style={{ textAlign: 'center' }}>I'm the best Dash component!</p>
-
             {/* Image container */}
             <div width={width} height={height}>
                 <FeetSVG id="feet-image" width={width} height={height} />
@@ -96,7 +93,8 @@ const FeetAnimation = ({ id, className, setProps, width, height, sensorValues })
 
 FeetAnimation.defaultProps = {
     width: 350,
-    height: 350
+    height: 350,
+    sensorValues: [0, 0, 0, 0, 0, 0]
 };
 
 FeetAnimation.propTypes = {
@@ -123,7 +121,7 @@ FeetAnimation.propTypes = {
     /**
      * Feet pressure sensor values
      */
-    sesnorValues: PropTypes.arrayOf(PropTypes.number).isRequired,
+    sensorValues: PropTypes.arrayOf(PropTypes.number),
 
 
     /**

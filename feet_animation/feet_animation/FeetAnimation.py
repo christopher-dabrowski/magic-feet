@@ -12,14 +12,14 @@ Keyword arguments:
 - className (string; optional): CSS classes added to the main div
 - width (number; default 350): Width of the component in px
 - height (number; default 350): Height of the component in px
-- sesnorValues (list of numbers; required): Feet pressure sensor values"""
+- sensorValues (list of numbers; default [0, 0, 0, 0, 0, 0]): Feet pressure sensor values"""
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, className=Component.UNDEFINED, width=Component.UNDEFINED, height=Component.UNDEFINED, sesnorValues=Component.REQUIRED, **kwargs):
-        self._prop_names = ['id', 'className', 'width', 'height', 'sesnorValues']
+    def __init__(self, id=Component.UNDEFINED, className=Component.UNDEFINED, width=Component.UNDEFINED, height=Component.UNDEFINED, sensorValues=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'className', 'width', 'height', 'sensorValues']
         self._type = 'FeetAnimation'
         self._namespace = 'feet_animation'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'className', 'width', 'height', 'sesnorValues']
+        self.available_properties = ['id', 'className', 'width', 'height', 'sensorValues']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')
@@ -27,7 +27,7 @@ Keyword arguments:
         _locals.update(kwargs)  # For wildcard attrs
         args = {k: _locals[k] for k in _explicit_args if k != 'children'}
 
-        for k in ['sesnorValues']:
+        for k in []:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')

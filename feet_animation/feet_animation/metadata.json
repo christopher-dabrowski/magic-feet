@@ -40,15 +40,19 @@
           "computed": false
         }
       },
-      "sesnorValues": {
+      "sensorValues": {
         "type": {
           "name": "arrayOf",
           "value": {
             "name": "number"
           }
         },
-        "required": true,
-        "description": "Feet pressure sensor values"
+        "required": false,
+        "description": "Feet pressure sensor values",
+        "defaultValue": {
+          "value": "[0, 0, 0, 0, 0, 0]",
+          "computed": false
+        }
       },
       "setProps": {
         "type": {
