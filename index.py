@@ -57,13 +57,25 @@ def map_value_to_RGB_string(value: float) -> str:
 
 
 def make_table(values, cell_colors=None):
-    table = go.Figure(data=[go.Table(
-        header=dict(values=[c.replace('_', ' ') for c in values.keys()],
-                    fill_color='paleturquoise',
-                    align='left'),
-        cells=dict(values=list(values.values()),
-                   fill=dict(color=cell_colors))
-    )])
+    table = go.Figure(
+        layout=dict(
+            title=dict(
+                text='Sensor values over last period',
+                font=dict(
+                    size=30,
+                    color='black'
+                )
+            )
+        ),
+        data=[
+            go.Table(
+                header=dict(values=[c.replace('_', ' ') for c in values.keys()],
+                            fill_color='paleturquoise',
+                            align='left'),
+                cells=dict(values=list(values.values()),
+                           fill=dict(color=cell_colors))
+            )]
+    )
 
     return table
 
@@ -160,15 +172,17 @@ app.layout = html.Div(
 
             html.Section(className='tabs-content', children=[
 
+                # Person name
                 html.H1(className='display-4', children=[
                         html.I(className='fas fa-user-circle mr-2'),
                         html.Span(id='person-name')
                         ]),
 
+                html.Section(className='shadow bg-white rounded mt-5', children=[
+                    dcc.Graph(id='table', className='table-light'),
+                ]),
+
                 dbc.Row([
-                    dbc.Col(
-                        dcc.Graph(id='table', className='table-light')
-                    ),
                     dbc.Col(
                         html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
                             dcc.Tabs(id='single-sensor-tabs', value='1',
