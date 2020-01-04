@@ -30,7 +30,7 @@
 .single-sensor-tab {
     border-bottom: 1px solid #d6d6d6;
     font-weight: bold;
-    padding: 6px;
+    /* padding: 6px; */
 }
 
 .single-sensor-tab--selected {
