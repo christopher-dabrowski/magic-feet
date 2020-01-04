@@ -199,14 +199,11 @@ app.layout = html.Div(
                 ]
                 ),
 
-                dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
-                         dbc.Col()]),
-                dbc.Row([
-                    dbc.Col(
-                        dcc.Graph(id='anomaly_graph', className='anomaly_graph'), width=5
-                    ),
-                ], justify="around"
-                )
+                html.Section(className='shadow bg-white rounded container-fluid pt-3', children=[
+                    html.H3('Anomaly accumulation histogram'),
+                    html.Div(id='last_anomaly_mess'),
+                    dcc.Graph(id='anomaly_graph', className='anomaly_graph')
+                ]),
             ]),
 
         ]),
@@ -229,14 +226,20 @@ def toggle_collapse(n, is_open):
         return not is_open
     return is_open
 
-@app.callback(Output(component_id='last_anomaly_mess', component_property='children'),
+
+@app.callback([Output('last_anomaly_mess', 'children'),
+               Output('last_anomaly_mess', 'style')],
               [Input('interval-component', 'n_intervals')])
 def update_last_anomaly(n_intervals):
     global last_anomaly_message
+
+    if (last_anomaly['time'] == 'NaN'):
+        return "", {'display': 'hidden'}
+
     lt = last_anomaly['time']
     sns = last_anomaly['sensor']
     last_anomaly_message = (f'Last anomaly was {lt} on the {sns}')
-    return last_anomaly_message
+    return last_anomaly_message, {}
 
 
 @app.callback([Output('current-id', 'data'),
