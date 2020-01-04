@@ -159,7 +159,12 @@ app.layout = html.Div(
             ]),
 
             html.Section(className='tabs-content', children=[
-                html.H1(id='person-name', className='display-4 pt-4'),
+
+
+                html.H1(className='display-4 pt-4 pl-3', children=[
+                        html.I(className='fas fa-user-circle mr-2'),
+                        html.Span(id='person-name')
+                        ]),
 
                 dbc.Row([
                     dbc.Col(
