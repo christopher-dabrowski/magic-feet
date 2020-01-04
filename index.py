@@ -101,6 +101,12 @@ app = dash.Dash(__name__, external_stylesheets=[
 app.layout = html.Div(
     className='wrapper',
     children=[
+        # Store current person id
+        dcc.Store(id='current-id', storage_type='session'),
+
+        dcc.Interval(id='interval-component',
+                     interval=1*1000,
+                     n_intervals=0),
 
         html.Nav(className='navbar navbar-dark bg-primary',
                  children=[
@@ -115,11 +121,33 @@ app.layout = html.Div(
                  ]
                  ),
 
-    # Store current person id
-    dcc.Store(id='current-id', storage_type='session'),
+        html.Main(className='container', children=[
             
+            html.Section(className='text-center my-4', children=[
+                html.H3(
+                    'Final project for Python programming and data visualization'),
+                html.Div(
+                    [
+                        dbc.Button(
+                            ['More info', html.I(
+                                className='ml-2 fas fa-info-circle')],
+                            id='collapse-button',
+                            className='mb-3',
+                            color='info'
+                        ),
+                        dbc.Collapse(
+                            dbc.Card(dbc.CardBody(
+                                'This project attempts to visualize data gathered live from pressure sensors placed on feet of 6 participants.')),
+                            id='collapse',
+                        ),
+                    ],
+                    className='my-3'
+                )
+            ]
+            ),
+
     dbc.Row([  
-    dbc.Col(dcc.Tabs(id="tabs", className ='nav-item', value='1', children=[
+                dbc.Col(dcc.Tabs(id="tabs", className='nav-item', value='1', children=[
         dcc.Tab(label='Person one', value='1'),
         dcc.Tab(label='Person two', value='2'),
         dcc.Tab(label='Person three', value='3'),
@@ -129,13 +157,14 @@ app.layout = html.Div(
     ])),
     dbc.Col(html.Div(id='title', children=[
             html.H1(children='Magic feet'),
-            html.H3(children='Final project for Python programming and data visualization.')
+                    html.H3(
+                        children='Final project for Python programming and data visualization.')
             ]))
     
     ]),
      
     dbc.Row([
-    dbc.Col(html.Div(id='tabs-content', className = 'tabs-content')),
+                dbc.Col(html.Div(id='tabs-content', className='tabs-content')),
     dbc.Col()
     ]),
             
@@ -155,19 +184,26 @@ app.layout = html.Div(
     dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
              dbc.Col()]),   
     dbc.Row([
-            dbc.Col(dcc.Graph(id='anomaly_graph', className='anomaly_graph'), width=5),
+                dbc.Col(dcc.Graph(id='anomaly_graph',
+                                  className='anomaly_graph'), width=5),
             dbc.Col(html.Div(children=[
                      FeetAnimation(id='feet-animation')]), width=3)
            
             ],
-             justify="around",),
-        
+                justify="around",)
+        ])
+    ])
 
-    dcc.Interval(id='interval-component',
-                 interval=1*1000,
-                 n_intervals=0)
-])
 
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("collapse-button", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 @app.callback(Output(component_id='last_anomaly_mess', component_property='children'),
               [Input('interval-component', 'n_intervals')])
