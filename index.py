@@ -219,4 +219,5 @@ def update_feet_animation(_, current_id):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0')
+    debug = False if os.environ.get('PRODUCTION') == 'true' else True
+    app.run_server(debug=debug, host='0.0.0.0')

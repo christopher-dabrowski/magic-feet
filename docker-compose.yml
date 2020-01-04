@@ -4,6 +4,7 @@ services:
     build: .
     environment:
       - REDIS_HOST=redis
+      - PRODUCTION=true
     depends_on:
       - api_cache
       - redis
