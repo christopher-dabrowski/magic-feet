@@ -2,16 +2,13 @@ version: "3"
 services:
   app:
     build: .
+    environment:
+      - REDIS_HOST=redis
     depends_on:
       - api_cache
       - redis
     ports:
       - "8050:8050"
-
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379" #FIXME: Final relese should be connected by virtaul network
 
   api_cache:
     build: ./API_cashe
@@ -19,3 +16,6 @@ services:
       - REDIS_HOST=redis
     depends_on:
       - redis
+
+  redis:
+    image: redis:alpine

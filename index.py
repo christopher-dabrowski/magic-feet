@@ -1,3 +1,4 @@
+import os
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -18,7 +19,8 @@ from typing import Tuple
 import pandas as pd
 import numpy as np
 
-store = redis.Redis()
+REDIS_HOST = os.getenv('REDIS_HOST') or 'localhost'
+store = redis.Redis(REDIS_HOST)
 
 
 def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
@@ -217,4 +219,4 @@ def update_feet_animation(_, current_id):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0')
