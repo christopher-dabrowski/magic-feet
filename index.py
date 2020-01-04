@@ -134,7 +134,7 @@ app.layout = html.Div(
                  ]
                  ),
 
-        html.Main(className='container-fluid', children=[
+        html.Main(className='container-fluid mb-4', children=[
 
             # Project description
             html.Section(className='text-center my-4', children=[
@@ -202,15 +202,19 @@ app.layout = html.Div(
                 dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
                          dbc.Col()]),
                 dbc.Row([
-                    dbc.Col(dcc.Graph(id='anomaly_graph',
-                                      className='anomaly_graph'), width=5),
-
-
-                ],
-                    justify="around"
+                    dbc.Col(
+                        dcc.Graph(id='anomaly_graph', className='anomaly_graph'), width=5
+                    ),
+                ], justify="around"
                 )
             ]),
 
+        ]),
+
+        html.Footer(className='footer', children=[
+            html.H1('PW EE'),
+            html.P('© 2020', className='mb-1'),
+            html.P('Authors: Mara Kruk and Krzysztof Dąbrowski', className='mb-0')
         ])
     ])
 
