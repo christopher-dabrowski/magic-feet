@@ -94,13 +94,27 @@ def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> d
     )
 
 
-#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+external_scripts = ['https://kit.fontawesome.com/620ce16426.js']
+app = dash.Dash(__name__, external_stylesheets=[
+                dbc.themes.BOOTSTRAP], external_scripts=external_scripts)
 
 app.layout = html.Div(
-    className = 'wrapper',
+    className='wrapper',
     children=[
+
+        html.Nav(className='navbar navbar-dark bg-primary',
+                 children=[
+                     html.A(className='navbar-brand', children=[
+                         html.I(className='fas fa-shoe-prints fa-rotate-270 mr-1'),
+                         'Magic feet'
+                     ]),
+                     html.A(className='nav-item', style={'color': 'white'}, href='https://github.com/SiwyKrzysiek/magic-foots', children=[
+                         'See it on Github',
+                         html.I(className='fab fa-github ml-1'),
+                     ])
+                 ]
+                 ),
+
     # Store current person id
     dcc.Store(id='current-id', storage_type='session'),
             
