@@ -182,23 +182,29 @@ app.layout = html.Div(
                     dcc.Graph(id='table', className='table-light'),
                 ]),
 
-                dbc.Row([
+                dbc.Row(justify="center", align="center", children=[
+                    dbc.Col(className='shadow bg-white rounded', children=[
+                        html.H4('Sensor placement',
+                                className='text-center py-3'),
+                        FeetAnimation(id='feet-animation')
+                    ]),
+
                     dbc.Col(
                         html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
                             dcc.Tabs(id='single-sensor-tabs', value='1',
                                      children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
                             dcc.Graph(id='singe-sensor-indicator')
                         ])
-                    )],
-                    justify="center",),
+                    )
+                ]
+                ),
 
                 dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
                          dbc.Col()]),
                 dbc.Row([
                     dbc.Col(dcc.Graph(id='anomaly_graph',
                                       className='anomaly_graph'), width=5),
-                    dbc.Col(html.Div(children=[
-                        FeetAnimation(id='feet-animation')]), width=3)
+
 
                 ],
                     justify="around"
