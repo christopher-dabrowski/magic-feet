@@ -1,3 +1,13 @@
+main {
+    padding: 0 5% !important;
+}
+
+.tabs-content {
+    border: 1px solid rgb(215, 215, 215);
+    border-radius: 0px 0px 9px 9px;
+    border-top: none;
+}
+
 #sensor-row {
     display: flex;
     justify-content: flex-start;

@@ -122,8 +122,9 @@ app.layout = html.Div(
                  ]
                  ),
 
-        html.Main(className='container', children=[
+        html.Main(className='container-fluid', children=[
 
+            # Project description
             html.Section(className='text-center my-4', children=[
                 html.H3(
                     'Final project for Python programming and data visualization'),
@@ -147,51 +148,45 @@ app.layout = html.Div(
             ]
             ),
 
-            dbc.Row([
-                dbc.Col(dcc.Tabs(id="tabs", className='nav-item', value='1', children=[
-                    dcc.Tab(label='Person one', value='1'),
-                    dcc.Tab(label='Person two', value='2'),
-                    dcc.Tab(label='Person three', value='3'),
-                    dcc.Tab(label='Person four', value='4'),
-                    dcc.Tab(label='Person five', value='5'),
-                    dcc.Tab(label='Person six', value='6'),
-                ])),
-                dbc.Col(html.Div(id='title', children=[
-                    html.H1(children='Magic feet'),
-                    html.H3(
-                        children='Final project for Python programming and data visualization.')
-                ]))
-
+            # Select person
+            dcc.Tabs(id="tabs", className='nav-item', value='1', children=[
+                dcc.Tab(label='Person one', value='1'),
+                dcc.Tab(label='Person two', value='2'),
+                dcc.Tab(label='Person three', value='3'),
+                dcc.Tab(label='Person four', value='4'),
+                dcc.Tab(label='Person five', value='5'),
+                dcc.Tab(label='Person six', value='6'),
             ]),
 
-            dbc.Row([
-                dbc.Col(html.Div(id='tabs-content', className='tabs-content')),
-                dbc.Col()
+            html.Section(className='tabs-content', children=[
+                html.H1(id='person-name', className='display-4 pt-4'),
+
+                dbc.Row([
+                    dbc.Col(
+                        dcc.Graph(id='table', className='table-light')
+                    ),
+                    dbc.Col(
+                        html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
+                            dcc.Tabs(id='single-sensor-tabs', value='1',
+                                     children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
+                            dcc.Graph(id='singe-sensor-indicator')
+                        ])
+                    )],
+                    justify="center",),
+
+                dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
+                         dbc.Col()]),
+                dbc.Row([
+                    dbc.Col(dcc.Graph(id='anomaly_graph',
+                                      className='anomaly_graph'), width=5),
+                    dbc.Col(html.Div(children=[
+                        FeetAnimation(id='feet-animation')]), width=3)
+
+                ],
+                    justify="around"
+                )
             ]),
 
-            dbc.Row([
-                dbc.Col(
-                    dcc.Graph(id='table', className='table-light')
-                ),
-                dbc.Col(
-                    html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
-                        dcc.Tabs(id='single-sensor-tabs', value='1',
-                                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
-                        dcc.Graph(id='singe-sensor-indicator')
-                    ])
-                )],
-                justify="center",),
-
-            dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
-                     dbc.Col()]),
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='anomaly_graph',
-                                  className='anomaly_graph'), width=5),
-                dbc.Col(html.Div(children=[
-                    FeetAnimation(id='feet-animation')]), width=3)
-
-            ],
-                justify="around",)
         ])
     ])
 
@@ -217,7 +212,7 @@ def update_last_anomaly(n_intervals):
 
 
 @app.callback([Output('current-id', 'data'),
-               Output('tabs-content', 'children')
+               Output('person-name', 'children')
                ],
               [Input('tabs', 'value')])
 def on_person_tab_change(new_id):
@@ -225,11 +220,11 @@ def on_person_tab_change(new_id):
     preson = json.loads(store.lrange(key, 0, 0)[0])
 
     firstName, lastName, birthdate = preson['firstname'], preson['lastname'], preson['birthdate']
-    cont = f'{firstName} {lastName} {birthdate}'
+    person_description = f'{firstName} {lastName} {birthdate}'
 
     return (
         new_id,
-        html.Div([html.H3(cont)])
+        person_description
     )
 
 
