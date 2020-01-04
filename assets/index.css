@@ -6,6 +6,8 @@ main {
     border: 1px solid rgb(215, 215, 215);
     border-radius: 0px 0px 9px 9px;
     border-top: none;
+
+    padding: 2vw 3vw;
 }
 
 #sensor-row {

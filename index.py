@@ -160,8 +160,7 @@ app.layout = html.Div(
 
             html.Section(className='tabs-content', children=[
 
-
-                html.H1(className='display-4 pt-4 pl-3', children=[
+                html.H1(className='display-4', children=[
                         html.I(className='fas fa-user-circle mr-2'),
                         html.Span(id='person-name')
                         ]),
