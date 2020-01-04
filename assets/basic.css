@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Dec 30 03:23:41 2019
+
+@author: fractum
+"""
+
+#tabs {
+  color: #fff;
+  background-color: #303030;
+}
+
+#tabs-content {
+     display: -webkit-flex;
+      display: flex;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+      -webkit-align-content: center;
+      align-content: center;
+}

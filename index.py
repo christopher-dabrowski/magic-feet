@@ -1,13 +1,13 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
+import plotly.express as px
 from plotly.colors import n_colors
 
-# Custom component
-from feet_animation import FeetAnimation
 
 import redis
 import json
@@ -17,9 +17,11 @@ import requests
 from typing import Tuple
 import pandas as pd
 import numpy as np
+# Custom component
+from feet_animation import FeetAnimation
 
 store = redis.Redis()
-
+last_anomaly = {'time': 'NaN', 'sensor': 'Nan'} 
 
 def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
     # FIXME: Move those functions to some other module
@@ -65,6 +67,12 @@ def make_table(values, cell_colors=None):
     return table
 
 
+
+def make_anomaly_histogram(df):
+    fig = px.histogram(df, x='time', y='anomaly', histfunc='sum', hover_data=df.columns)
+    return fig
+
+
 def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> dict:
     """Create figure of analog meter displaying value of singe pressure sensor"""
 
@@ -86,48 +94,76 @@ def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> d
     )
 
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-app.layout = html.Div(children=[
+app.layout = html.Div(
+    className = 'wrapper',
+    children=[
     # Store current person id
     dcc.Store(id='current-id', storage_type='session'),
-
-    html.H1(children='Hello Dash'),
-    html.Div(children='''
-        Dash: A web application framework for Python.
-    '''),
-
-    dcc.Tabs(id="tabs", value='1', children=[
+            
+    dbc.Row([  
+    dbc.Col(dcc.Tabs(id="tabs", className ='nav-item', value='1', children=[
         dcc.Tab(label='Person one', value='1'),
         dcc.Tab(label='Person two', value='2'),
         dcc.Tab(label='Person three', value='3'),
         dcc.Tab(label='Person four', value='4'),
         dcc.Tab(label='Person five', value='5'),
         dcc.Tab(label='Person six', value='6'),
+    ])),
+    dbc.Col(html.Div(id='title', children=[
+            html.H1(children='Magic feet'),
+            html.H3(children='Final project for Python programming and data visualization.')
+            ]))
+    
     ]),
-    html.Div(id='tabs-content'),
-
-    dcc.Graph(id='table'),
-
-    html.Div(id='sensor-row',
-             children=[
-                 html.Div(id='single-sensor-container', children=[  # Display single selected sensor
-                     dcc.Tabs(id='single-sensor-tabs', value='1',
-                              children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
-                     dcc.Graph(id='singe-sensor-indicator')
-                 ]),
-                #  Feet animation custom component
-                 FeetAnimation(id='feet-animation'),
-             ]
-             ),
+     
+    dbc.Row([
+    dbc.Col(html.Div(id='tabs-content', className = 'tabs-content')),
+    dbc.Col()
+    ]),
+            
+    dbc.Row([   
+    dbc.Col(        
+    dcc.Graph(id='table', className='table-light')
+    ),
+    dbc.Col(
+    html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
+        dcc.Tabs(id='single-sensor-tabs', value='1',
+                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
+        dcc.Graph(id='singe-sensor-indicator')
+    ])
+    )],
+    justify="center",),
+        
+    dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
+             dbc.Col()]),   
+    dbc.Row([
+            dbc.Col(dcc.Graph(id='anomaly_graph', className='anomaly_graph'), width=5),
+            dbc.Col(html.Div(children=[
+                     FeetAnimation(id='feet-animation')]), width=3)
+           
+            ],
+             justify="around",),
+        
 
     dcc.Interval(id='interval-component',
                  interval=1*1000,
                  n_intervals=0)
 ])
 
+
+@app.callback(Output(component_id='last_anomaly_mess', component_property='children'),
+              [Input('interval-component', 'n_intervals')])
+def update_last_anomaly(n_intervals):
+    global last_anomaly_message
+    lt = last_anomaly['time']
+    sns = last_anomaly['sensor']
+    last_anomaly_message= (f'Last anomaly was {lt} on the {sns}')
+    return last_anomaly_message
+    
 
 @app.callback([Output('current-id', 'data'),
                Output('tabs-content', 'children')
@@ -144,6 +180,67 @@ def on_person_tab_change(new_id):
         new_id,
         html.Div([html.H3(cont)])
     )
+
+
+
+@app.callback(Output('anomaly_graph', 'figure'),
+              [Input('interval-component', 'n_intervals'),
+               Input('current-id', 'data')])
+def update_anomaly_histogram(n_intervals, current_id):
+    
+    if current_id is None:
+        raise PreventUpdate
+    
+    TABLE_SIZE = 20
+    key = f'personData{current_id}'
+    
+    rawList = store.lrange(key, 0, TABLE_SIZE)
+    data = [json.loads(d.decode()) for d in rawList]
+    
+    number_of_anomalies = 0
+    global last_anomaly   
+    df = pd.DataFrame(columns=['time', 'anomaly', 'sensors'])
+    for value in data:
+        datetime = dt.datetime.fromtimestamp(value['timestamp'])
+        sensors = value['trace']['sensors']
+        anomaly_sensors = []
+        for s in sensors:
+            key = f'sensor_{id}'
+            if s['anomaly'] != 'False':
+                number_of_anomalies +=1
+                if last_anomaly['time'] == 'Nan':
+                    last_anomaly['time'] = datetime
+                    last_anomaly['sensor'] = key    
+                if type(last_anomaly['time']) == type(datetime):
+                    if last_anomaly(['time']) < datetime:
+                        last_anomaly['time'] = datetime
+                        last_anomaly['sensor'] = key
+                anomaly_sensors.append(key)    
+        if not anomaly_sensors:
+            anomaly = 1
+            new_row = pd.DataFrame([[datetime, anomaly, anomaly_sensors ]], columns=['time', 'anomaly', 'sensors'])
+            df.append(new_row)
+        else: 
+            anomaly = 0
+            df = df.append({'time': datetime, 'anomaly': anomaly, 'sensors': 'All'}, ignore_index=True)
+
+    return make_anomaly_histogram(df)
+                      
+               
+@app.callback(Output('feet-animation', 'sensorValues'),
+              [Input('interval-component', 'n_intervals'),
+               Input('current-id', 'data')])
+def update_feet_animation(_, current_id):
+    if current_id is None:
+        raise PreventUpdate
+
+    key = f'personData{current_id}'
+    rawList = store.lrange(key, 0, 0)
+    data = [json.loads(d.decode()) for d in rawList][0]
+
+    values = [sensor['value'] for sensor in data['trace']['sensors']]
+
+    return values
 
 
 @app.callback(Output('table', 'figure'),
@@ -198,22 +295,6 @@ def update_singe_sensor_indicator(_, selected_sensor, current_id):
               for value in data)
 
     return make_foot_pressure_indicator(selected_sensor, *values)
-
-
-@app.callback(Output('feet-animation', 'sensorValues'),
-              [Input('interval-component', 'n_intervals'),
-               Input('current-id', 'data')])
-def update_feet_animation(_, current_id):
-    if current_id is None:
-        raise PreventUpdate
-
-    key = f'personData{current_id}'
-    rawList = store.lrange(key, 0, 0)
-    data = [json.loads(d.decode()) for d in rawList][0]
-
-    values = [sensor['value'] for sensor in data['trace']['sensors']]
-
-    return values
 
 
 if __name__ == '__main__':
