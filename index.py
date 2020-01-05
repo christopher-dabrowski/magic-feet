@@ -21,7 +21,8 @@ import numpy as np
 from feet_animation import FeetAnimation
 
 store = redis.Redis()
-last_anomaly = {'time': 'NaN', 'sensor': 'Nan'} 
+last_anomaly = {'time': 'NaN', 'sensor': 'Nan'}
+
 
 def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
     # FIXME: Move those functions to some other module
@@ -56,20 +57,32 @@ def map_value_to_RGB_string(value: float) -> str:
 
 
 def make_table(values, cell_colors=None):
-    table = go.Figure(data=[go.Table(
-        header=dict(values=[c.replace('_', ' ') for c in values.keys()],
-                    fill_color='paleturquoise',
-                    align='left'),
-        cells=dict(values=list(values.values()),
-                   fill=dict(color=cell_colors))
-    )])
+    table = go.Figure(
+        layout=dict(
+            title=dict(
+                text='Sensor values over last period',
+                font=dict(
+                    size=30,
+                    color='black'
+                )
+            )
+        ),
+        data=[
+            go.Table(
+                header=dict(values=[c.replace('_', ' ') for c in values.keys()],
+                            fill_color='paleturquoise',
+                            align='left'),
+                cells=dict(values=list(values.values()),
+                           fill=dict(color=cell_colors))
+            )]
+    )
 
     return table
 
 
-
 def make_anomaly_histogram(df):
-    fig = px.histogram(df, x='time', y='anomaly', histfunc='sum', hover_data=df.columns)
+    fig = px.histogram(df, x='time', y='anomaly',
+                       histfunc='sum', hover_data=df.columns)
     return fig
 
 
@@ -94,79 +107,143 @@ def make_foot_pressure_indicator(sensor_number, value, previous_value=None) -> d
     )
 
 
-#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+external_scripts = ['https://kit.fontawesome.com/620ce16426.js']
+app = dash.Dash(__name__, external_stylesheets=[
+                dbc.themes.BOOTSTRAP], external_scripts=external_scripts)
 
 app.layout = html.Div(
-    className = 'wrapper',
+    className='wrapper',
     children=[
-    # Store current person id
-    dcc.Store(id='current-id', storage_type='session'),
-            
-    dbc.Row([  
-    dbc.Col(dcc.Tabs(id="tabs", className ='nav-item', value='1', children=[
-        dcc.Tab(label='Person one', value='1'),
-        dcc.Tab(label='Person two', value='2'),
-        dcc.Tab(label='Person three', value='3'),
-        dcc.Tab(label='Person four', value='4'),
-        dcc.Tab(label='Person five', value='5'),
-        dcc.Tab(label='Person six', value='6'),
-    ])),
-    dbc.Col(html.Div(id='title', children=[
-            html.H1(children='Magic feet'),
-            html.H3(children='Final project for Python programming and data visualization.')
-            ]))
-    
-    ]),
-     
-    dbc.Row([
-    dbc.Col(html.Div(id='tabs-content', className = 'tabs-content')),
-    dbc.Col()
-    ]),
-            
-    dbc.Row([   
-    dbc.Col(        
-    dcc.Graph(id='table', className='table-light')
-    ),
-    dbc.Col(
-    html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
-        dcc.Tabs(id='single-sensor-tabs', value='1',
-                 children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
-        dcc.Graph(id='singe-sensor-indicator')
+        # Store current person id
+        dcc.Store(id='current-id', storage_type='session'),
+
+        dcc.Interval(id='interval-component',
+                     interval=1*1000,
+                     n_intervals=0),
+
+        html.Nav(className='navbar navbar-dark bg-primary',
+                 children=[
+                     html.A(className='navbar-brand', children=[
+                         html.I(className='fas fa-shoe-prints fa-rotate-270 mr-1'),
+                         'Magic feet'
+                     ]),
+                     html.A(className='nav-item', style={'color': 'white'}, href='https://github.com/SiwyKrzysiek/magic-foots', children=[
+                         'See it on Github',
+                         html.I(className='fab fa-github ml-1'),
+                     ])
+                 ]
+                 ),
+
+        html.Main(className='container-fluid mb-4', children=[
+
+            # Project description
+            html.Section(className='text-center my-4', children=[
+                html.H3(
+                    'Final project for Python programming and data visualization'),
+                html.Div(
+                    [
+                        dbc.Button(
+                            ['More info', html.I(
+                                className='ml-2 fas fa-info-circle')],
+                            id='collapse-button',
+                            className='mb-3',
+                            color='info'
+                        ),
+                        dbc.Collapse(
+                            dbc.Card(dbc.CardBody(
+                                'This project attempts to visualize data gathered live from pressure sensors placed on feet of 6 participants.')),
+                            id='collapse',
+                        ),
+                    ],
+                    className='my-3'
+                )
+            ]
+            ),
+
+            # Select person
+            dcc.Tabs(id="tabs", className='nav-item', value='1', children=[
+                dcc.Tab(label='Person one', value='1'),
+                dcc.Tab(label='Person two', value='2'),
+                dcc.Tab(label='Person three', value='3'),
+                dcc.Tab(label='Person four', value='4'),
+                dcc.Tab(label='Person five', value='5'),
+                dcc.Tab(label='Person six', value='6'),
+            ]),
+
+            html.Section(className='tabs-content', children=[
+
+                # Person name
+                html.H1(className='display-4', children=[
+                        html.I(className='fas fa-user-circle mr-2'),
+                        html.Span(id='person-name')
+                        ]),
+
+                html.Section(className='shadow bg-white rounded mt-5', children=[
+                    dcc.Graph(id='table', className='table-light'),
+                ]),
+
+                dbc.Row(justify="center", align="center", children=[
+                    dbc.Col(className='shadow bg-white rounded', children=[
+                        html.H4('Sensor placement',
+                                className='text-center py-3'),
+                        FeetAnimation(id='feet-animation')
+                    ]),
+
+                    dbc.Col(
+                        html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
+                            dcc.Tabs(id='single-sensor-tabs', value='1',
+                                     children=[dcc.Tab(label=str(i), value=str(i), className='single-sensor-tab') for i in range(0, 6)]),
+                            dcc.Graph(id='singe-sensor-indicator')
+                        ])
+                    )
+                ]
+                ),
+
+                html.Section(className='shadow bg-white rounded container-fluid pt-3', children=[
+                    html.H3('Anomaly accumulation histogram'),
+                    html.Div(id='last_anomaly_mess'),
+                    dcc.Graph(id='anomaly_graph', className='anomaly_graph')
+                ]),
+            ]),
+
+        ]),
+
+        html.Footer(className='footer', children=[
+            html.H1('PW EE'),
+            html.P('© 2020', className='mb-1'),
+            html.P('Authors: Mara Kruk and Krzysztof Dąbrowski', className='mb-0')
+        ])
     ])
-    )],
-    justify="center",),
-        
-    dbc.Row([dbc.Col(html.Div(id='last_anomaly_mess')),
-             dbc.Col()]),   
-    dbc.Row([
-            dbc.Col(dcc.Graph(id='anomaly_graph', className='anomaly_graph'), width=5),
-            dbc.Col(html.Div(children=[
-                     FeetAnimation(id='feet-animation')]), width=3)
-           
-            ],
-             justify="around",),
-        
-
-    dcc.Interval(id='interval-component',
-                 interval=1*1000,
-                 n_intervals=0)
-])
 
 
-@app.callback(Output(component_id='last_anomaly_mess', component_property='children'),
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("collapse-button", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
+@app.callback([Output('last_anomaly_mess', 'children'),
+               Output('last_anomaly_mess', 'style')],
               [Input('interval-component', 'n_intervals')])
 def update_last_anomaly(n_intervals):
     global last_anomaly_message
+
+    if (last_anomaly['time'] == 'NaN'):
+        return "", {'display': 'hidden'}
+
     lt = last_anomaly['time']
     sns = last_anomaly['sensor']
-    last_anomaly_message= (f'Last anomaly was {lt} on the {sns}')
-    return last_anomaly_message
-    
+    last_anomaly_message = (f'Last anomaly was {lt} on the {sns}')
+    return last_anomaly_message, {}
+
 
 @app.callback([Output('current-id', 'data'),
-               Output('tabs-content', 'children')
+               Output('person-name', 'children')
                ],
               [Input('tabs', 'value')])
 def on_person_tab_change(new_id):
@@ -174,31 +251,30 @@ def on_person_tab_change(new_id):
     preson = json.loads(store.lrange(key, 0, 0)[0])
 
     firstName, lastName, birthdate = preson['firstname'], preson['lastname'], preson['birthdate']
-    cont = f'{firstName} {lastName} {birthdate}'
+    person_description = f'{firstName} {lastName} {birthdate}'
 
     return (
         new_id,
-        html.Div([html.H3(cont)])
+        person_description
     )
-
 
 
 @app.callback(Output('anomaly_graph', 'figure'),
               [Input('interval-component', 'n_intervals'),
                Input('current-id', 'data')])
 def update_anomaly_histogram(n_intervals, current_id):
-    
+
     if current_id is None:
         raise PreventUpdate
-    
+
     TABLE_SIZE = 20
     key = f'personData{current_id}'
-    
+
     rawList = store.lrange(key, 0, TABLE_SIZE)
     data = [json.loads(d.decode()) for d in rawList]
-    
+
     number_of_anomalies = 0
-    global last_anomaly   
+    global last_anomaly
     df = pd.DataFrame(columns=['time', 'anomaly', 'sensors'])
     for value in data:
         datetime = dt.datetime.fromtimestamp(value['timestamp'])
@@ -207,26 +283,28 @@ def update_anomaly_histogram(n_intervals, current_id):
         for s in sensors:
             key = f'sensor_{id}'
             if s['anomaly'] != 'False':
-                number_of_anomalies +=1
+                number_of_anomalies += 1
                 if last_anomaly['time'] == 'Nan':
                     last_anomaly['time'] = datetime
-                    last_anomaly['sensor'] = key    
+                    last_anomaly['sensor'] = key
                 if type(last_anomaly['time']) == type(datetime):
                     if last_anomaly(['time']) < datetime:
                         last_anomaly['time'] = datetime
                         last_anomaly['sensor'] = key
-                anomaly_sensors.append(key)    
+                anomaly_sensors.append(key)
         if not anomaly_sensors:
             anomaly = 1
-            new_row = pd.DataFrame([[datetime, anomaly, anomaly_sensors ]], columns=['time', 'anomaly', 'sensors'])
+            new_row = pd.DataFrame([[datetime, anomaly, anomaly_sensors]], columns=[
+                                   'time', 'anomaly', 'sensors'])
             df.append(new_row)
-        else: 
+        else:
             anomaly = 0
-            df = df.append({'time': datetime, 'anomaly': anomaly, 'sensors': 'All'}, ignore_index=True)
+            df = df.append({'time': datetime, 'anomaly': anomaly,
+                            'sensors': 'All'}, ignore_index=True)
 
     return make_anomaly_histogram(df)
-                      
-               
+
+
 @app.callback(Output('feet-animation', 'sensorValues'),
               [Input('interval-component', 'n_intervals'),
                Input('current-id', 'data')])
