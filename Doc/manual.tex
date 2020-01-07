@@ -36,7 +36,7 @@ We use Plotly Dash libraries for our project. We have chosen them because of the
 \newline
 We have access to the data of 6 persons, so we implemented tabs that changes current person information. As was mentioned above, we store this information in session storage, co current person can be different for different sessions. Current person id manages all other components. We have implemented tabs via dash core components Tabs.
 \newline
-For data storage we have chosen to use Redis database, because of its simplicity. We start acquire data with program beginning. Next, we use data from Redis storage for real-time visualization. For visualizations, we use only 20 last records, because it is optimal amount for fast real-time visualizations, but, of course, we store more.
+For data storage we have chosen to use Redis database, because of its simplicity. Data acquisition starts along with the \texttt{api\_cache} module. Next, we use data from Redis storage for real-time visualization. For visualizations, we use only 20 last records, because it is optimal amount for fast real-time visualizations. Caching module stores last 10 minutes of data.
 \newline
 All our project we have packed in Docker container, so it is easy to build it and run.
 \section{Visual design}
