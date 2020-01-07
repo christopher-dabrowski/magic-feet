@@ -5,6 +5,8 @@
 \usepackage{textcomp}
 \usepackage[T1]{fontenc}
 \usepackage{fancyhdr}
+\usepackage{hyperref} % Hyperlinks
+
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{Magic feet}
@@ -25,7 +27,10 @@
 Our task was to make web based application written in Python. Out application presents a graphical visualization of a device for monitoring walk habits and patterns of elderly and disabled persons.
 This device provides real-time measurements of pressure of feet on the ground, so our application's components are real-time based.
 \subsection{How to run}
-docker?
+Before starting project make sure to connect to PW VPN to allow access to data API.
+
+Project is containerized with Docker. To start it simply run \texttt{docker-compose up} in main directory. After that step open \href{http://localhost:8050}{localhost:8050} in browser.
+
 \section{Technical details}
 We use Plotly Dash libraries for our project. We have chosen them because of their elegant simplicity and wide functionality. All elements in our project are parts of the Dash layout, each element represents dash core or html components. We also use built-in Store components to store some data(Current person id and data about last anomaly), so this data is stored in secure way. We store current person id in Session store, so each user can have their own page which will not affect the others.
 \newline
