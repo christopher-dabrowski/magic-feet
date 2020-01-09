@@ -24,8 +24,6 @@ from feet_animation import FeetAnimation
 REDIS_HOST = os.getenv('REDIS_HOST') or 'localhost'
 store = redis.Redis(REDIS_HOST)
 
-last_anomaly = {'time': 'NaN', 'sensor': 'Nan'}
-
 
 def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
     # FIXME: Move those functions to some other module
@@ -119,6 +117,8 @@ app.layout = html.Div(
     children=[
         # Store current person id
         dcc.Store(id='current-id', storage_type='session'),
+        # Store last anomaly
+        dcc.Store(id='last-anomaly'),
 
         dcc.Interval(id='interval-component',
                      interval=1*1000,
@@ -230,20 +230,21 @@ def toggle_collapse(n, is_open):
     return is_open
 
 
+
 @app.callback([Output('last_anomaly_mess', 'children'),
-               Output('last_anomaly_mess', 'style')],
-              [Input('interval-component', 'n_intervals')])
-def update_last_anomaly(n_intervals):
-    global last_anomaly_message
-
-    if (last_anomaly['time'] == 'NaN'):
-        return "", {'display': 'hidden'}
-
-    lt = last_anomaly['time']
-    sns = last_anomaly['sensor']
-    last_anomaly_message = (f'Last anomaly was {lt} on the {sns}')
-    return last_anomaly_message, {}
-
+              Output('last_anomaly_mess', 'style')],
+              [Input('last-anomaly', 'modified_timestamp')],
+              [State('last-anomaly', 'data')])
+def update_last_anomaly(ts, data):
+    if ts is None:
+        PreventUpdate
+    data = data or {'time': None, 'sensor': None}
+    time_d = data['time']
+    if time_d == None:
+       return "", {'display': 'hidden'}   
+    sensor = data['sensor']
+    label = f'Last anomaly was {time_d} at {sensor}'
+    return label, {}
 
 @app.callback([Output('current-id', 'data'),
                Output('person-name', 'children')
@@ -262,10 +263,12 @@ def on_person_tab_change(new_id):
     )
 
 
-@app.callback(Output('anomaly_graph', 'figure'),
+@app.callback([Output('anomaly_graph', 'figure'),
+               Output('last-anomaly', 'data')],
               [Input('interval-component', 'n_intervals'),
-               Input('current-id', 'data')])
-def update_anomaly_histogram(n_intervals, current_id):
+               Input('current-id', 'data')],
+               [State('last-anomaly', 'data')])
+def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
 
     if current_id is None:
         raise PreventUpdate
@@ -277,25 +280,27 @@ def update_anomaly_histogram(n_intervals, current_id):
     data = [json.loads(d.decode()) for d in rawList]
 
     number_of_anomalies = 0
-    global last_anomaly
+#    global last_anomaly
+    last_anomaly_data = last_anomaly_data or {'time': None, 'sensor': None}
     df = pd.DataFrame(columns=['time', 'anomaly', 'sensors'])
     for value in data:
         datetime = dt.datetime.fromtimestamp(value['timestamp'])
         sensors = value['trace']['sensors']
         anomaly_sensors = []
         for s in sensors:
+            id = s['id']
             key = f'sensor_{id}'
-            if s['anomaly'] != 'False':
+            if s['anomaly'] != False:
                 number_of_anomalies += 1
-                if last_anomaly['time'] == 'Nan':
-                    last_anomaly['time'] = datetime
-                    last_anomaly['sensor'] = key
-                if type(last_anomaly['time']) == type(datetime):
-                    if last_anomaly(['time']) < datetime:
-                        last_anomaly['time'] = datetime
-                        last_anomaly['sensor'] = key
+                if last_anomaly_data['time'] == None:
+                    last_anomaly_data['time'] = datetime
+                    last_anomaly_data['sensor'] = key
+                if type(last_anomaly_data['time']) == type(datetime):
+                    if last_anomaly_data['time'] < datetime:
+                        last_anomaly_data['time'] = datetime
+                        last_anomaly_data['sensor'] = key
                 anomaly_sensors.append(key)
-        if not anomaly_sensors:
+        if number_of_anomalies !=0:
             anomaly = 1
             new_row = pd.DataFrame([[datetime, anomaly, anomaly_sensors]], columns=[
                                    'time', 'anomaly', 'sensors'])
@@ -305,7 +310,7 @@ def update_anomaly_histogram(n_intervals, current_id):
             df = df.append({'time': datetime, 'anomaly': anomaly,
                             'sensors': 'All'}, ignore_index=True)
 
-    return make_anomaly_histogram(df)
+    return make_anomaly_histogram(df), last_anomaly_data
 
 
 @app.callback(Output('feet-animation', 'sensorValues'),
