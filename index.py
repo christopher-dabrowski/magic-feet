@@ -18,6 +18,7 @@ import requests
 from typing import Tuple
 import pandas as pd
 import numpy as np
+from itertools import repeat
 # Custom component
 from feet_animation import FeetAnimation
 
@@ -80,9 +81,9 @@ def make_table(values, cell_colors=None):
     return table
 
 
-def make_anomaly_histogram(df):
-    fig = px.histogram(df, x='time', y='anomaly',
-                       histfunc='sum', hover_data=df.columns)
+def make_anomaly_histogram(transformed):
+    fig = go.Figure(
+        data=[go.Histogram(x=transformed['time'])])
     return fig
 
 
@@ -237,12 +238,14 @@ def toggle_collapse(n, is_open):
 def update_last_anomaly(ts, data):
     if ts is None:
         PreventUpdate
+
     data = data or {'time': None, 'sensor': None}
     time_d = data['time']
     if time_d == None:
        return "", {'display': 'hidden'}   
+    
     sensor = data['sensor']
-    label = f'Last anomaly was {time_d} at {sensor}'
+    label = f'Last anomaly was {time_d} at sensors {sensor}'
     return label, {}
 
 @app.callback([Output('current-id', 'data'),
@@ -272,43 +275,32 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
     if current_id is None:
         raise PreventUpdate
 
-    TABLE_SIZE = 20
     key = f'personData{current_id}'
-
-    rawList = store.lrange(key, 0, TABLE_SIZE)
+    rawList = store.lrange(key, 0, -1) # -1 is the last element
     data = [json.loads(d.decode()) for d in rawList]
 
-    number_of_anomalies = 0
-    last_anomaly_data = last_anomaly_data or {'time': None, 'sensor': None}
-    df = pd.DataFrame(columns=['time', 'anomaly', 'sensors'])
-    for value in data:
-        datetime = dt.datetime.fromtimestamp(value['timestamp'])
-        sensors = value['trace']['sensors']
-        anomaly_sensors = []
-        for s in sensors:
-            id = s['id']
-            key = f'sensor_{id}'
-            if s['anomaly'] != False:
-                number_of_anomalies += 1
-                if last_anomaly_data['time'] == None:
-                    last_anomaly_data['time'] = datetime
-                    last_anomaly_data['sensor'] = key
-                if type(last_anomaly_data['time']) == type(datetime):
-                    if last_anomaly_data['time'] < datetime:
-                        last_anomaly_data['time'] = datetime
-                        last_anomaly_data['sensor'] = key
-                anomaly_sensors.append(key)
-        if number_of_anomalies !=0:
-            anomaly = 1
-            new_row = pd.DataFrame([[datetime, anomaly, anomaly_sensors]], columns=[
-                                   'time', 'anomaly', 'sensors'])
-            df.append(new_row)
-        else:
-            anomaly = 0
-            df = df.append({'time': datetime, 'anomaly': anomaly,
-                            'sensors': 'All'}, ignore_index=True)
+    last_anomaly_data = {'time': None, 'sensor': None}
+    transformed = {'time': []}
+    latest_anomalies = None
 
-    return make_anomaly_histogram(df), last_anomaly_data
+    for record in data:
+        time = dt.datetime.fromtimestamp(record['timestamp'])
+        anomalies = sum((s['anomaly'] for s in record['trace']['sensors']))
+        if anomalies > 0 and (latest_anomalies is None or latest_anomalies['time'] < time):
+            latest_anomalies = {
+                'data': record['trace']['sensors'], 'time': time}
+        transformed['time'].extend(repeat(time, anomalies))
+
+    if latest_anomalies is not None:
+        abnormal_sensors = (s['id']
+                            for s in latest_anomalies['data'] if s['anomaly'])
+        sensors_message = ' ,'.join((f'Sensor {i}' for i in abnormal_sensors))
+        last_anomaly_data = {
+            'time': latest_anomalies['time'].strftime("%m/%d/%Y, %H:%M:%S"), 
+            'sensor': sensors_message
+        }
+
+    return make_anomaly_histogram(transformed), last_anomaly_data
 
 
 @app.callback(Output('feet-animation', 'sensorValues'),
