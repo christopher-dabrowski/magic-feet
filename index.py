@@ -18,6 +18,7 @@ import requests
 from typing import Tuple
 import pandas as pd
 import numpy as np
+from itertools import repeat
 # Custom component
 from feet_animation import FeetAnimation
 
@@ -82,7 +83,7 @@ def make_table(values, cell_colors=None):
 
 def make_anomaly_histogram(transformed):
     fig = go.Figure(
-        data=[go.Histogram(x=transformed['time'], y=transformed['count'])])
+        data=[go.Histogram(x=transformed['time'])])
     return fig
 
 
@@ -242,7 +243,7 @@ def update_last_anomaly(ts, data):
     if time_d == None:
        return "", {'display': 'hidden'}   
     sensor = data['sensor']
-    label = f'Last anomaly was {time_d} at {sensor}'
+    label = f'Last anomaly was {time_d} at sensors {sensor}'
     return label, {}
 
 @app.callback([Output('current-id', 'data'),
@@ -277,18 +278,17 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
     data = [json.loads(d.decode()) for d in rawList]
 
     last_anomaly_data = last_anomaly_data or {'time': None, 'sensor': None}
-    transformed = {'time': [], 'count': []}
+    transformed = {'time': []}
     latest_anomalies = None
 
     for record in data:
         time = dt.datetime.fromtimestamp(record['timestamp'])
         anomalies = sum((s['anomaly'] for s in record['trace']['sensors']))
+        anomalies += 2
         if anomalies > 0 and (latest_anomalies is None or latest_anomalies['time'] < time):
             latest_anomalies = {
                 'data': record['trace']['sensors'], 'time': time}
-        if anomalies > 0:
-            transformed['time'].append(time)
-            transformed['count'].append(anomalies)
+        transformed['time'].extend(repeat(time, anomalies))
 
     return make_anomaly_histogram(transformed), last_anomaly_data
 
