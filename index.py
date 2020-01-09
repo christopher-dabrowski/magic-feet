@@ -238,10 +238,12 @@ def toggle_collapse(n, is_open):
 def update_last_anomaly(ts, data):
     if ts is None:
         PreventUpdate
+
     data = data or {'time': None, 'sensor': None}
     time_d = data['time']
     if time_d == None:
        return "", {'display': 'hidden'}   
+    
     sensor = data['sensor']
     label = f'Last anomaly was {time_d} at sensors {sensor}'
     return label, {}
@@ -277,7 +279,7 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
     rawList = store.lrange(key, 0, -1) # -1 is the last element
     data = [json.loads(d.decode()) for d in rawList]
 
-    last_anomaly_data = last_anomaly_data or {'time': None, 'sensor': None}
+    last_anomaly_data = {'time': None, 'sensor': None}
     transformed = {'time': []}
     latest_anomalies = None
 
@@ -293,8 +295,11 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
     if latest_anomalies is not None:
         abnormal_sensors = (s['id']
                             for s in latest_anomalies['data'] if s['anomaly'])
-        sesnosrs_message = ' ,'.join((f'Sensor {i}' for i in abnormal_sensors))
-        last_anomaly_data = {'time': latest_anomalies['time'], 'sensor': sesnosrs_message}
+        sensors_message = ' ,'.join((f'Sensor {i}' for i in abnormal_sensors))
+        last_anomaly_data = {
+            'time': latest_anomalies['time'].strftime("%m/%d/%Y, %H:%M:%S"), 
+            'sensor': sensors_message
+        }
 
     return make_anomaly_histogram(transformed), last_anomaly_data
 
