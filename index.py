@@ -26,7 +26,6 @@ store = redis.Redis(REDIS_HOST)
 
 
 def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
-    # FIXME: Move those functions to some other module
     """Linear interpolation from sensor value to RGB color"""
 
     smallest, biggest = 0, 1023  # From doctor Zawadzki's documentation
