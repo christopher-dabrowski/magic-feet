@@ -21,3 +21,9 @@ Docker is required for this method.
 ## Documentation
 
 Project is described in details in [manual.pdf](./Doc/manual.pdf).
+
+## Project preview
+
+How project looks in action
+
+![Best project ever](./Doc/Project_preview.png)
