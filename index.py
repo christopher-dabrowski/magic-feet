@@ -286,7 +286,6 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
     for record in data:
         time = dt.datetime.fromtimestamp(record['timestamp'])
         anomalies = sum((s['anomaly'] for s in record['trace']['sensors']))
-        anomalies += 2
         if anomalies > 0 and (latest_anomalies is None or latest_anomalies['time'] < time):
             latest_anomalies = {
                 'data': record['trace']['sensors'], 'time': time}
