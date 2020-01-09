@@ -290,6 +290,12 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
                 'data': record['trace']['sensors'], 'time': time}
         transformed['time'].extend(repeat(time, anomalies))
 
+    if latest_anomalies is not None:
+        abnormal_sensors = (s['id']
+                            for s in latest_anomalies['data'] if s['anomaly'])
+        sesnosrs_message = ' ,'.join((f'Sensor {i}' for i in abnormal_sensors))
+        last_anomaly_data = {'time': latest_anomalies['time'], 'sensor': sesnosrs_message}
+
     return make_anomaly_histogram(transformed), last_anomaly_data
 
 
