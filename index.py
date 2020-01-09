@@ -279,7 +279,6 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
     data = [json.loads(d.decode()) for d in rawList]
 
     number_of_anomalies = 0
-#    global last_anomaly
     last_anomaly_data = last_anomaly_data or {'time': None, 'sensor': None}
     df = pd.DataFrame(columns=['time', 'anomaly', 'sensors'])
     for value in data:
