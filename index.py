@@ -1,3 +1,4 @@
+import os
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -20,7 +21,8 @@ import numpy as np
 # Custom component
 from feet_animation import FeetAnimation
 
-store = redis.Redis()
+REDIS_HOST = os.getenv('REDIS_HOST') or 'localhost'
+store = redis.Redis(REDIS_HOST)
 
 
 def map_value_to_RGB(value: float) -> Tuple[float, float, float]:
@@ -382,4 +384,5 @@ def update_singe_sensor_indicator(_, selected_sensor, current_id):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    debug = False if os.environ.get('PRODUCTION') == 'true' else True
+    app.run_server(debug=debug, host='0.0.0.0')

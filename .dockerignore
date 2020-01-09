@@ -1,0 +1,10 @@
+# This speeds up docker context collection
+.git
+API_cashe
+.vscode
+__pycache__
+.ipynb_checkpoints
+feet_animation
+!feet_animation/dist
+venv
+Playground.ipynb
