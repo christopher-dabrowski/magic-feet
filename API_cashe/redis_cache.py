@@ -82,23 +82,19 @@ def clean_singe_data(id: int) -> None:
     """Remove oldest records in list with given id if it's time stamp is pass given time"""
     key = f'personData{id}'
 
-    # It could be inefficient. Maybe we should pop and push it back if it's ok
-    oldest_data = store.lrange(key, -1, -1)[0]
-    oldest_data = json.loads(oldest_data)
+    should_act = True
+    while should_act:
+        should_act = False
+        oldest_data = store.lrange(key, -1, -1)[0]
+        oldest_data = json.loads(oldest_data)
 
-    if datetime.fromtimestamp(oldest_data["timestamp"]) < datetime.now() - data_expiration_time:
-        store.rpop(key)
-
-
-def initial_cleanup() -> None:
-    """Delete all data from previous runs"""
-    keys = [f'personData{id}' for id in range(1, 7)]
-    store.delete(*keys)
+        if datetime.fromtimestamp(oldest_data["timestamp"]) < datetime.now() - data_expiration_time:
+            store.rpop(key)
+            should_act = True
 
 
 if __name__ == '__main__':
     print('Starting to cache API data for rough times', flush=True)
-    initial_cleanup()
 
     try:
         while True:
