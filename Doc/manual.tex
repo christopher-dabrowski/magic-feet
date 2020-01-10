@@ -40,6 +40,8 @@ We have access to the data of 6 persons, so we've implemented tabs that changes 
 \subsection{Storage}
 For data storage we have chosen to use \textit{Redis} database, because of its simplicity. Data acquisition starts along with the \texttt{api\_cache} module. In our index program we have variable \textit{store}, which is an instance of Redis database, connected with our running database. Next, we use data from Redis storage for real-time visualization. For visualizations, we use only 20 last records, because it is an optimal amount for fast real-time visualizations. Caching module stores last 10 minutes of data.
 \subsection{Structure and components}
+\includegraphics[width=12cm]{MagicFeetComponents}
+\newline
 All our components update every second, catching new information. We use functions with update\_ prefix to draw our figures. These components have elements in layout as Putput and time with
 current person id as Input. We use time(interval\_component) for updating with time. Some figures have more Outputs and Inputs.
 
