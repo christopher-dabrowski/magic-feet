@@ -58,6 +58,8 @@ def map_value_to_RGB_string(value: float) -> str:
 
 
 def make_table(values, cell_colors=None):
+    """Create table for displaying sensor values from values and corresponding colors"""
+
     table = go.Figure(
         layout=dict(
             title=dict(
@@ -190,7 +192,7 @@ app.layout = html.Div(
                         html.H4('Sensor placement',
                                 className='text-center py-3'),
                         FeetAnimation(id='feet-animation')
-                    ]),
+                    ], style={'margin-left': '15px'}),
 
                     dbc.Col(
                         html.Div(id='single-sensor-container', className='sensor', children=[  # Display single selected sensor
@@ -225,34 +227,39 @@ app.layout = html.Div(
     [State("collapse", "is_open")],
 )
 def toggle_collapse(n, is_open):
+    """Toggle more info about project"""
     if n:
         return not is_open
     return is_open
 
 
-
 @app.callback([Output('last_anomaly_mess', 'children'),
-              Output('last_anomaly_mess', 'style')],
+               Output('last_anomaly_mess', 'style')],
               [Input('last-anomaly', 'modified_timestamp')],
               [State('last-anomaly', 'data')])
 def update_last_anomaly(ts, data):
+    """Display data about most recent anomaly"""
+
     if ts is None:
         PreventUpdate
 
     data = data or {'time': None, 'sensor': None}
     time_d = data['time']
     if time_d == None:
-       return "", {'display': 'hidden'}   
-    
+        return "", {'display': 'hidden'}
+
     sensor = data['sensor']
     label = f'Last anomaly was {time_d} at sensors {sensor}'
     return label, {}
+
 
 @app.callback([Output('current-id', 'data'),
                Output('person-name', 'children')
                ],
               [Input('tabs', 'value')])
 def on_person_tab_change(new_id):
+    """Switch current person"""
+
     key = f'personData{new_id}'
     preson = json.loads(store.lrange(key, 0, 0)[0])
 
@@ -269,14 +276,15 @@ def on_person_tab_change(new_id):
                Output('last-anomaly', 'data')],
               [Input('interval-component', 'n_intervals'),
                Input('current-id', 'data')],
-               [State('last-anomaly', 'data')])
+              [State('last-anomaly', 'data')])
 def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
+    """Generate anomaly histogram and display it"""
 
     if current_id is None:
         raise PreventUpdate
 
     key = f'personData{current_id}'
-    rawList = store.lrange(key, 0, -1) # -1 is the last element
+    rawList = store.lrange(key, 0, -1)  # -1 is the last element
     data = [json.loads(d.decode()) for d in rawList]
 
     last_anomaly_data = {'time': None, 'sensor': None}
@@ -296,7 +304,7 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
                             for s in latest_anomalies['data'] if s['anomaly'])
         sensors_message = ' ,'.join((f'Sensor {i}' for i in abnormal_sensors))
         last_anomaly_data = {
-            'time': latest_anomalies['time'].strftime("%m/%d/%Y, %H:%M:%S"), 
+            'time': latest_anomalies['time'].strftime("%m/%d/%Y, %H:%M:%S"),
             'sensor': sensors_message
         }
 
@@ -307,6 +315,8 @@ def update_anomaly_histogram(n_intervals, current_id, last_anomaly_data):
               [Input('interval-component', 'n_intervals'),
                Input('current-id', 'data')])
 def update_feet_animation(_, current_id):
+    """Pass sensor data to Feet Animation custom component"""
+
     if current_id is None:
         raise PreventUpdate
 
@@ -323,6 +333,8 @@ def update_feet_animation(_, current_id):
               [Input('interval-component', 'n_intervals'),
                Input('current-id', 'data')],)
 def update_table(n_intervals, current_id):
+    """Create data for main table and draw it"""
+
     if current_id is None:
         raise PreventUpdate
 
@@ -360,6 +372,8 @@ def update_table(n_intervals, current_id):
                Input('single-sensor-tabs', 'value'),
                Input('current-id', 'data')])
 def update_singe_sensor_indicator(_, selected_sensor, current_id):
+    """Update analog style indicator"""
+
     if current_id is None or selected_sensor is None:
         raise PreventUpdate
 

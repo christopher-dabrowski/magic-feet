@@ -6,12 +6,13 @@
 \usepackage[T1]{fontenc}
 \usepackage{fancyhdr}
 \usepackage{hyperref} % Hyperlinks
+\usepackage{lastpage} % Number of last page in document
 
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{Magic feet}
 \lhead{Krzysztof Dąbrowski, Marharyta Kruk}
-\rfoot{Page \thepage}
+\rfoot{Page \thepage{} / \pageref{LastPage}}
 
 \title{Final project for Python programming and Data visualization course}
 \author{Marharyta Kruk, Krzysztof Dąbrowski}
@@ -54,17 +55,24 @@ We also have label with information about last anomaly. It is tricky; we show th
 We have a bunch of functions with \texttt{make\_} prefix. When update\_ functions manage our layout and collect data, make\_ functions create figures. It was possible to unite them, but we separate them, because we want to make our code more clear and readable.
 \newline
 All our project we have packed in Docker container, so it is easy to build it and run.
+
 \section{Visual design}
+
 All our components we have chosen to show variation of our data, so each figure provides quantitative information.
-\newline
-We use table for general picture of our data. Our table represent Dash core component Graph, which uses component Table from Plotly graph objects. This decision was made because we use dictionaries for building table, and we also store data in Redis database in the form of dictionary. Another plus of using this table is possibility to colour cells depending on their values (as we have implemented).
-\newline
-Feet animation is using for visualization of pressure which is made from sensor's values
-\newline
-We use Indicator for clear demonstration how values on the sensors change and what is the difference between previous and current value. We use here the same tabs, co user can easily switch between sensors.
-\newline
-For anomalies we use histogram of anomalies, which we have chosen because it is good tools for visualization how huge is number of anomalies and how it changes with time. We also have label with information about last anomaly, so when histogram is empty, we can learn when was last anomaly and on which sensor.
-\newline
+\vspace{10pt}
+
+We use table for general picture of our data. Our table represent Dash core component Graph, which uses component Table from Plotly graph objects. This decision was made because we use dictionaries for building table, and we also store data in Redis database in the form of dictionary. Another plus of using this table is possibility to colour cells. Colour value is linear scaled between white and green based on cell value.
+\vspace{10pt}
+
+To present how data was collected and visualize main idea of the project we decided to show vector image of feet with embedded live sensor values. To display if feet is currently is on the ground we decided to dynamically change width of line. This gives clear picture of current action being done by selected person. 
+\vspace{10pt}
+
+We use analog style Indicator for clear demonstration how values on the sensors change and what is the difference between previous and current value. We use here the same tabs, co user can easily switch between sensors. Thanks to usage of this type of indicator user can quickly and intuitively get a feeling of current value a lot quicker than by reading numeric value.
+\vspace{10pt}
+
+For anomalies we use histogram of anomalies, which we have chosen because it is good tools for visualization how huge is number of anomalies and how it changes with time. We also have label with information about last anomaly, so when histogram is empty, we can learn when was last anomaly and on which sensor. Medical experts could detect periods of high animalities accumulation and correlate them with patient actions in given time period.
+\vspace{10pt}
+
 So, for good appearance we use some our custom css styles, which are placed in \textit{asserts} folder. We style our page with thoughts about simplicity, accuracy and intuitiveness of interaction with our components.
 
 \end{document}
