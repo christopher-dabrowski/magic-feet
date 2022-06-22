@@ -4,7 +4,7 @@ Click==7.0
 dash==1.7.0
 dash-bootstrap-components==0.8.0
 Flask==1.1.1
-numpy==1.18.0
+numpy==1.22.0
 pandas==0.25.3
 plotly==4.4.1
 redis==3.3.11
