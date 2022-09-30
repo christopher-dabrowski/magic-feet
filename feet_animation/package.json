@@ -16,7 +16,7 @@
   "author": "Krzysiek <293101@pw.edu.pl>",
   "license": "MIT",
   "dependencies": {
-    "d3": "^5.15.0",
+    "d3": "^7.6.1",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
